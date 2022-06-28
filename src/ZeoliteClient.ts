@@ -18,6 +18,7 @@ export class ZeoliteClient extends Client {
   public logger: ZeoliteLogger;
   public cmdDirPath: string;
   public extDirPath: string;
+  public langsDirPath: string;
   public owners: string[] = [];
   public middlewares: MiddlewareFunc[] = [];
 
@@ -33,6 +34,7 @@ export class ZeoliteClient extends Client {
 
     this.cmdDirPath = options.cmdDirPath;
     this.extDirPath = options.extDirPath;
+    this.langsDirPath = options.langsDirPath;
     this.owners = options.owners;
     this.debug = options.debug || false;
 
