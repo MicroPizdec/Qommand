@@ -1,0 +1,22 @@
+{
+  "name": "zeolitecore",
+  "version": "1.0.0",
+  "description": "Core components of Zeolite",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "format": "prettier --write \"src/**/*.ts\""
+  },
+  "author": "MicroPizdec",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^18.0.0",
+    "prettier": "^2.7.1",
+    "typescript": "^4.7.3"
+  },
+  "dependencies": {
+    "emoji-regex": "^10.1.0",
+    "eris": "^0.16.1"
+  }
+}

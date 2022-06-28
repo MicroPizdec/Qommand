@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "incremental": true,
+    "target": "es2020",
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "strictPropertyInitialization": false,
+    "skipLibCheck": true,
+    "outDir": "./dist",
+    "declaration": true,
+    "moduleResolution": "node"
+  },
+  "include": [ "src/" ],
+  "exclude": [ "src/config.example.ts", "src/commands_old", "src/extensions_old", "node_modules", "dist" ]
+}
