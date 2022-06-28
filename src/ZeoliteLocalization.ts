@@ -43,7 +43,7 @@ export class ZeoliteLocalization {
     const langs = fs.readdirSync(this.client.langsDirPath).map((i) => i.split('.')[0]);
 
     for (const lang of langs) {
-      const strs = require(path.join('..', 'languages', lang)).default;
+      const strs = require(path.join(this.client.langsDirPath, lang)).default;
       self.languageStrings[lang] = strs;
       this.client.logger.debug(`Loaded language ${lang}`);
     }
