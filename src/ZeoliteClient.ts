@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, Interaction, User, Member, Constants } from 'eris';
+import { Client, CommandInteraction, User, Member, Constants, ClientEvents } from 'eris';
 import { ZeoliteCommand } from './ZeoliteCommand';
 import { ZeoliteClientOptions } from './ZeoliteClientOptions';
 import { ZeoliteExtension } from './ZeoliteExtension';
@@ -8,7 +8,23 @@ import path from 'path';
 import { ZeoliteContext } from './ZeoliteContext';
 import { ZeoliteLocalization } from './ZeoliteLocalization';
 
-type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
+export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
+
+export interface ZeoliteEvents extends ClientEvents {
+  noPermissions: [ctx: ZeoliteContext, permissions: (keyof Constants['Permissions'])[]];
+  commandCooldown: [ctx: ZeoliteContext, secondsLeft: number];
+  ownerOnlyCommand: [ctx: ZeoliteContext];
+  guildOnlyCommand: [ctx: ZeoliteContext];
+  commandSuccess: [ctx: ZeoliteContext];
+  commandError: [ctx: ZeoliteContext, error: Error]
+} 
+
+export declare interface ZeoliteClient {
+  on<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
+  on(event: string, listener: (...args: any) => void): this;
+  emit<K extends keyof ZeoliteEvents>(event: K, ...args: ZeoliteEvents[K]): boolean;
+  emit(event: string, ...args: any): boolean;
+}
 
 export class ZeoliteClient extends Client {
   public commands: Map<string, ZeoliteCommand>;
@@ -58,8 +74,6 @@ export class ZeoliteClient extends Client {
     this.localization = new ZeoliteLocalization(this);
 
     this.logger.info('ZeoliteClient initialized.');
-
-    this.localization.loadLanguages();
   }
 
   private async handleCommand(interaction: CommandInteraction) {
