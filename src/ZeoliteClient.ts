@@ -22,6 +22,8 @@ export interface ZeoliteEvents extends ClientEvents {
 export declare interface ZeoliteClient {
   on<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
   on(event: string, listener: (...args: any) => void): this;
+  off<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
+  off(event: string, listener: (...args: any) => void): this;
   emit<K extends keyof ZeoliteEvents>(event: K, ...args: ZeoliteEvents[K]): boolean;
   emit(event: string, ...args: any): boolean;
 }
