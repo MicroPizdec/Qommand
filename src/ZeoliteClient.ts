@@ -65,6 +65,18 @@ export class ZeoliteClient extends Client {
       }
     });
 
+    this.on('commandError', (ctx, error) => {
+      this.logger.error(`An error occurred while running command ${ctx.commandName}:`);
+      console.error(error);
+    });
+
+    this.on('warn', (msg) => this.logger.warn(msg));
+    
+    this.on('error', (err, id) => {
+      this.logger.error(`Error on shard ${id}:`)
+      console.error(err);
+    });
+
     if (this.debug) {
       this.erisLogger = new ZeoliteLogger(LoggerLevel.Debug, 'eris');
 
