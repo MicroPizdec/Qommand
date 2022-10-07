@@ -1,4 +1,4 @@
-import { Client, CommandInteraction, User, Member, Constants, ClientEvents } from 'eris';
+import { Client, ClientEvents, Constants, CommandInteraction, Member, User } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
 import { ZeoliteClientOptions } from './ZeoliteClientOptions';
 import { ZeoliteExtension } from './ZeoliteExtension';
@@ -11,7 +11,7 @@ import { ZeoliteLocalization } from './ZeoliteLocalization';
 export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
 
 export interface ZeoliteEvents extends ClientEvents {
-  noPermissions: [ctx: ZeoliteContext, permissions: (keyof Constants['Permissions'])[]];
+  noPermissions: [ctx: ZeoliteContext, permissions: string[]];
   commandCooldown: [ctx: ZeoliteContext, secondsLeft: number];
   ownerOnlyCommand: [ctx: ZeoliteContext];
   guildOnlyCommand: [ctx: ZeoliteContext];
@@ -43,8 +43,8 @@ export class ZeoliteClient extends Client {
   private debug: boolean;
   private erisLogger: ZeoliteLogger;
 
-  public constructor(token: string, options: ZeoliteClientOptions) {
-    super(token, options);
+  public constructor(options: ZeoliteClientOptions) {
+    super(options);
 
     this.commands = new Map();
     this.extensions = new Map();
@@ -61,7 +61,7 @@ export class ZeoliteClient extends Client {
     this.on('ready', () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
       for (const cmd of this.commands.values()) {
-        this.createCommand(cmd.json());
+        this.application.createGlobalCommand(cmd.json());
       }
     });
 
@@ -164,7 +164,7 @@ export class ZeoliteClient extends Client {
     }
   }
 
-  public validatePermissions(member: Member, perms: (keyof Constants['Permissions'])[]): boolean {
+  public validatePermissions(member: Member, perms: Constants.PermissionName[]): boolean {
     for (const perm of perms) {
       if (!member.permissions.has(perm)) return false;
     }

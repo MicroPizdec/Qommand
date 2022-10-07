@@ -4,15 +4,12 @@ import {
   User,
   Member,
   Guild,
-  TextableChannel,
   InteractionContent,
-  InteractionEditContent,
   Message,
   ComponentInteraction,
-  FileContent,
-} from 'eris';
+  AnyTextChannel
+} from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
-import { ZeoliteCommandOptions } from './ZeoliteCommandOptions';
 
 type Filter = (interaction: ComponentInteraction) => boolean;
 interface CollectButtonOptions {
@@ -23,15 +20,12 @@ interface CollectButtonOptions {
 
 export class ZeoliteContext {
   private data: Map<string, any> = new Map<string, any>();
-  public options: ZeoliteCommandOptions;
 
   public constructor(
     public readonly client: ZeoliteClient,
     public readonly interaction: CommandInteraction,
     public readonly command: ZeoliteCommand,
-  ) {
-    this.options = new ZeoliteCommandOptions(client, interaction.data.options, interaction.data.resolved);
-  }
+  ) {}
 
   public get user(): User {
     return this.interaction.member?.user || this.interaction.user!;
@@ -45,7 +39,7 @@ export class ZeoliteContext {
     return this.client.guilds.get(this.interaction.guildID!);
   }
 
-  public get channel(): TextableChannel {
+  public get channel(): AnyTextChannel | undefined {
     return this.interaction.channel;
   }
 
@@ -53,24 +47,24 @@ export class ZeoliteContext {
     return this.interaction.data.name;
   }
 
-  public async reply(options: string | InteractionContent, files?: FileContent | FileContent[]) {
-    return this.interaction.createMessage(options, files);
+  public async reply(options: InteractionContent) {
+    return this.interaction.createMessage(options);
   }
 
   public async defer(flags?: number) {
     return this.interaction.defer(flags);
   }
 
-  public async editReply(options: string | InteractionEditContent, files?: FileContent | FileContent[]) {
-    return this.interaction.editOriginalMessage(options, files);
+  public async editReply(options: InteractionContent) {
+    return this.interaction.editOriginal(options);
   }
 
-  public async followUp(options: string | InteractionContent): Promise<Message> {
+  public async followUp(options: InteractionContent): Promise<Message> {
     return this.interaction.createFollowup(options);
   }
 
   public async deleteReply() {
-    return this.interaction.deleteOriginalMessage();
+    return this.interaction.deleteOriginal();
   }
 
   public t(str: string, ...args: any[]): string {

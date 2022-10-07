@@ -1,4 +1,4 @@
-import { ComponentInteraction, Message } from 'eris';
+import { ComponentInteraction, Message } from 'oceanic.js';
 import EventEmitter from 'events';
 import { ZeoliteClient } from './ZeoliteClient';
 

@@ -1,5 +1,5 @@
 import { ZeoliteClient } from './ZeoliteClient';
-import { Member, User } from 'eris';
+import { Member, User } from 'oceanic.js';
 import fs from 'fs';
 import path from 'path';
 import util from 'util';

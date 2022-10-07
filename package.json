@@ -17,6 +17,7 @@
   },
   "dependencies": {
     "emoji-regex": "^10.1.0",
-    "eris": "^0.16.1"
+    "eris": "^0.16.1",
+    "oceanic.js": "^1.1.1"
   }
 }
