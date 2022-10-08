@@ -1,7 +1,6 @@
 export * from './ZeoliteClient';
 export * from './ZeoliteClientOptions';
 export * from './ZeoliteCommand';
-export * from './ZeoliteCommandOptions';
 export * from './ZeoliteContext';
 export * from './ZeoliteExtension';
 export * from './ZeoliteInteractionCollector';
