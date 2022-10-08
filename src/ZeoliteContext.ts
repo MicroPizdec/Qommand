@@ -7,7 +7,8 @@ import {
   InteractionContent,
   Message,
   ComponentInteraction,
-  AnyTextChannel
+  AnyTextChannel,
+  InteractionOptionsWrapper
 } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
 
@@ -45,6 +46,10 @@ export class ZeoliteContext {
 
   public get commandName(): string {
     return this.interaction.data.name;
+  }
+
+  public get options(): InteractionOptionsWrapper {
+    return this.interaction.data.options;
   }
 
   public async reply(options: InteractionContent) {
