@@ -2,11 +2,11 @@ import { Client, ClientEvents, Constants, CommandInteraction, Member, User } fro
 import { ZeoliteCommand } from './ZeoliteCommand';
 import { ZeoliteClientOptions } from './ZeoliteClientOptions';
 import { ZeoliteExtension } from './ZeoliteExtension';
-import { ZeoliteLogger, LoggerLevel } from './ZeoliteLogger';
 import fs from 'fs';
 import path from 'path';
 import { ZeoliteContext } from './ZeoliteContext';
 import { ZeoliteLocalization } from './ZeoliteLocalization';
+import { getLogger, Logger } from '@log4js-node/log4js-api';
 
 export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
 
@@ -33,18 +33,22 @@ export class ZeoliteClient extends Client {
   public extensions: Map<string, ZeoliteExtension>;
   public cooldowns: Map<string, Map<string, number>>;
   public localization: ZeoliteLocalization;
-  public logger: ZeoliteLogger;
   public cmdDirPath: string;
   public extDirPath: string;
   public langsDirPath: string;
   public owners: string[] = [];
   public middlewares: MiddlewareFunc[] = [];
+  public logger: Logger;
 
-  private debug: boolean;
-  private erisLogger: ZeoliteLogger;
+  private oceanicLogger: Logger;
 
   public constructor(options: ZeoliteClientOptions) {
     super(options);
+
+    this.logger = getLogger("ZeoliteClient");
+    this.oceanicLogger = getLogger("Oceanic");
+
+    this.on('debug', (msg) => this.oceanicLogger.debug(msg));
 
     this.commands = new Map();
     this.extensions = new Map();
@@ -54,9 +58,6 @@ export class ZeoliteClient extends Client {
     this.extDirPath = options.extDirPath;
     this.langsDirPath = options.langsDirPath;
     this.owners = options.owners;
-    this.debug = options.debug || false;
-
-    this.logger = new ZeoliteLogger(this.debug ? LoggerLevel.Debug : LoggerLevel.Info, 'ZeoliteClient');
 
     this.on('ready', () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
@@ -77,12 +78,6 @@ export class ZeoliteClient extends Client {
       console.error(err);
     });
 
-    if (this.debug) {
-      this.erisLogger = new ZeoliteLogger(LoggerLevel.Debug, 'eris');
-
-      this.on('debug', (msg) => this.erisLogger.debug(msg));
-    }
-
     this.on('interactionCreate', this.handleCommand);
 
     this.localization = new ZeoliteLocalization(this);
@@ -92,6 +87,8 @@ export class ZeoliteClient extends Client {
 
   private async handleCommand(interaction: CommandInteraction) {
     if (interaction.type != 2) return;
+
+    this.logger.debug(`Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id})`);
 
     const cmd: ZeoliteCommand | undefined = this.commands.get(interaction.data.name);
     if (!cmd) return;
@@ -120,11 +117,13 @@ export class ZeoliteClient extends Client {
 
   private async runCommand(ctx: ZeoliteContext, next: () => Promise<void> | void) {
     if (ctx.command.ownerOnly && !this.isOwner(ctx.member || ctx.user!)) {
+      this.logger.debug(`Command ${ctx.command.name} didn't run because ${ctx.user.tag} isn't a bot owner.`);
       this.emit('ownerOnlyCommand', ctx);
       return;
     }
 
     if (ctx.command.guildOnly && !ctx.guild) {
+      this.logger.debug(`Command ${ctx.command.name} didn't run due to being ran in DMs.`);
       this.emit('guildOnlyCommand', ctx);
       return;
     }
@@ -173,6 +172,7 @@ export class ZeoliteClient extends Client {
   }
 
   public loadAllCommands() {
+    this.logger.debug(`Started loading commands from dir ${this.cmdDirPath}...`);
     const files = fs.readdirSync(this.cmdDirPath).filter((f) => !f.endsWith('.js.map'));
 
     for (const file of files) {
@@ -183,7 +183,14 @@ export class ZeoliteClient extends Client {
   }
 
   public loadCommand(name: string): ZeoliteCommand {
-    const cmdCls: typeof ZeoliteCommand = require(path.join(this.cmdDirPath, name)).default;
+    let cmdCls: typeof ZeoliteCommand;
+    try {
+      cmdCls = require(path.join(this.cmdDirPath, name)).default;
+    } catch (err: any) {
+      this.logger.error(`Failed to load command ${name}:`);
+      throw err;
+    }
+
     const cmd = new cmdCls(this);
 
     if (!cmd.preLoad()) {
@@ -227,6 +234,7 @@ export class ZeoliteClient extends Client {
   }
 
   public loadAllExtensions() {
+    this.logger.debug(`Started loading extensions from dir ${this.extDirPath}...`);
     const files = fs.readdirSync(this.extDirPath).filter((f) => !f.endsWith('.js.map'));
 
     for (const file of files) {
@@ -276,5 +284,9 @@ export class ZeoliteClient extends Client {
     if (permissions) link += `&permissions=${permissions}`;
     if (scopes) link += `&scopes=${scopes.join('%20')}`;
     return link;
+  }
+
+  public deployCommands() {
+    // todo
   }
 }

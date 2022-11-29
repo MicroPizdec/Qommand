@@ -69,6 +69,8 @@ export class ZeoliteCommand {
       name: this.name,
       description: this.description,
       options: this.options,
+      nameLocalizations: this.nameLocalizations,
+      descriptionLocalizations: this.descriptionLocalizations,
     };
   }
 }
