@@ -8,7 +8,7 @@ import {
   Message,
   ComponentInteraction,
   AnyTextChannel,
-  InteractionOptionsWrapper
+  InteractionOptionsWrapper,
 } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
 
@@ -73,7 +73,7 @@ export class ZeoliteContext {
   }
 
   public t(str: string, ...args: any[]): string {
-    return this.client.localization.getString(this.member || this.user!, str, ...args);
+    return this.client.localizationManager.getString(this.member || this.user!, str, ...args);
   }
 
   public set(key: string, data: any) {

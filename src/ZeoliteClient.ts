@@ -5,8 +5,10 @@ import { ZeoliteExtension } from './ZeoliteExtension';
 import fs from 'fs';
 import path from 'path';
 import { ZeoliteContext } from './ZeoliteContext';
-import { ZeoliteLocalization } from './ZeoliteLocalization';
+import { ZeoliteLocalizationManager } from './ZeoliteLocalizationManager';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
+import { ZeoliteCommandsManager } from './ZeoliteCommandsManager';
+import { ZeoliteExtensionsManager } from './ZeoliteExtensionsManager';
 
 export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
 
@@ -16,8 +18,8 @@ export interface ZeoliteEvents extends ClientEvents {
   ownerOnlyCommand: [ctx: ZeoliteContext];
   guildOnlyCommand: [ctx: ZeoliteContext];
   commandSuccess: [ctx: ZeoliteContext];
-  commandError: [ctx: ZeoliteContext, error: Error]
-} 
+  commandError: [ctx: ZeoliteContext, error: Error];
+}
 
 export declare interface ZeoliteClient {
   on<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
@@ -29,13 +31,9 @@ export declare interface ZeoliteClient {
 }
 
 export class ZeoliteClient extends Client {
-  public commands: Map<string, ZeoliteCommand>;
-  public extensions: Map<string, ZeoliteExtension>;
-  public cooldowns: Map<string, Map<string, number>>;
-  public localization: ZeoliteLocalization;
-  public cmdDirPath: string;
-  public extDirPath: string;
-  public langsDirPath: string;
+  public commandsManager: ZeoliteCommandsManager;
+  public extensionsManager: ZeoliteExtensionsManager;
+  public localizationManager: ZeoliteLocalizationManager;
   public owners: string[] = [];
   public middlewares: MiddlewareFunc[] = [];
   public logger: Logger;
@@ -45,23 +43,18 @@ export class ZeoliteClient extends Client {
   public constructor(options: ZeoliteClientOptions) {
     super(options);
 
-    this.logger = getLogger("ZeoliteClient");
-    this.oceanicLogger = getLogger("Oceanic");
+    this.logger = getLogger('ZeoliteClient');
+    this.oceanicLogger = getLogger('Oceanic');
 
     this.on('debug', (msg) => this.oceanicLogger.debug(msg));
 
-    this.commands = new Map();
-    this.extensions = new Map();
-    this.cooldowns = new Map();
-
-    this.cmdDirPath = options.cmdDirPath;
-    this.extDirPath = options.extDirPath;
-    this.langsDirPath = options.langsDirPath;
+    this.commandsManager = new ZeoliteCommandsManager(this);
+    this.extensionsManager = new ZeoliteExtensionsManager(this);
     this.owners = options.owners;
 
     this.on('ready', () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
-      for (const cmd of this.commands.values()) {
+      for (const cmd of this.commandsManager.commands.values()) {
         this.application.createGlobalCommand(cmd.json());
       }
     });
@@ -72,25 +65,27 @@ export class ZeoliteClient extends Client {
     });
 
     this.on('warn', (msg) => this.logger.warn(msg));
-    
+
     this.on('error', (err, id) => {
-      this.logger.error(`Error on shard ${id}:`)
+      this.logger.error(`Error on shard ${id}:`);
       console.error(err);
     });
 
     this.on('interactionCreate', this.handleCommand);
 
-    this.localization = new ZeoliteLocalization(this);
+    this.localizationManager = new ZeoliteLocalizationManager(this);
 
-    this.logger.info('ZeoliteClient initialized.');
+    this.logger.info('Initialized ZeoliteClient.');
   }
 
   private async handleCommand(interaction: CommandInteraction) {
     if (interaction.type != 2) return;
 
-    this.logger.debug(`Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id})`);
+    this.logger.debug(
+      `Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id})`,
+    );
 
-    const cmd: ZeoliteCommand | undefined = this.commands.get(interaction.data.name);
+    const cmd: ZeoliteCommand | undefined = this.commandsManager.commands.get(interaction.data.name);
     if (!cmd) return;
 
     const ctx = new ZeoliteContext(this, interaction, cmd);
@@ -129,11 +124,11 @@ export class ZeoliteClient extends Client {
     }
 
     if (ctx.command.cooldown) {
-      if (!this.cooldowns.has(ctx.command.name)) {
-        this.cooldowns.set(ctx.command.name, new Map<string, number>());
+      if (!this.commandsManager.cooldowns.has(ctx.command.name)) {
+        this.commandsManager.cooldowns.set(ctx.command.name, new Map<string, number>());
       }
 
-      let cmdCooldowns = this.cooldowns.get(ctx.command.name);
+      let cmdCooldowns = this.commandsManager.cooldowns.get(ctx.command.name);
       let now = Date.now();
       if (cmdCooldowns?.has((ctx.member || ctx.user!).id)) {
         let expiration = (cmdCooldowns.get((ctx.member || ctx.user!).id) as number) + ctx.command.cooldown * 1000;
@@ -154,7 +149,7 @@ export class ZeoliteClient extends Client {
       await ctx.command.run(ctx);
       this.emit('commandSuccess', ctx);
       if (ctx.command.cooldown) {
-        const cmdCooldowns = this.cooldowns.get(ctx.command.name);
+        const cmdCooldowns = this.commandsManager.cooldowns.get(ctx.command.name);
         cmdCooldowns?.set((ctx.member || ctx.user!).id, Date.now());
         setTimeout(() => cmdCooldowns?.delete((ctx.member || ctx.user!).id), ctx.command.cooldown * 1000);
       }
@@ -171,59 +166,6 @@ export class ZeoliteClient extends Client {
     return true;
   }
 
-  public loadAllCommands() {
-    this.logger.debug(`Started loading commands from dir ${this.cmdDirPath}...`);
-    const files = fs.readdirSync(this.cmdDirPath).filter((f) => !f.endsWith('.js.map'));
-
-    for (const file of files) {
-      this.loadCommand(file);
-    }
-
-    this.logger.info('Loaded all commands.');
-  }
-
-  public loadCommand(name: string): ZeoliteCommand {
-    let cmdCls: typeof ZeoliteCommand;
-    try {
-      cmdCls = require(path.join(this.cmdDirPath, name)).default;
-    } catch (err: any) {
-      this.logger.error(`Failed to load command ${name}:`);
-      throw err;
-    }
-
-    const cmd = new cmdCls(this);
-
-    if (!cmd.preLoad()) {
-      this.logger.warn(`Command ${cmd.name} didn't loaded due to failed pre-load check.`);
-      return cmd;
-    }
-
-    this.commands.set(cmd.name, cmd);
-
-    this.logger.debug(`Loaded command ${cmd.name}.`);
-
-    return cmd;
-  }
-
-  public unloadCommand(name: string) {
-    if (!this.commands.has(name)) {
-      throw new Error('this command does not exist.');
-    }
-
-    const cmd = this.commands.get(name);
-    const cmdPath = require.resolve(path.join(this.cmdDirPath, cmd!.name));
-
-    delete require.cache[cmdPath];
-    this.commands.delete(cmd!.name);
-
-    this.logger.debug(`Unloaded command ${name}.`);
-  }
-
-  public reloadCommand(name: string): ZeoliteCommand {
-    this.unloadCommand(name);
-    return this.loadCommand(name);
-  }
-
   public async connect() {
     this.logger.info('Logging in...');
     return super.connect();
@@ -231,48 +173,6 @@ export class ZeoliteClient extends Client {
 
   public isOwner(user: Member | User): boolean {
     return this.owners.includes(user.id);
-  }
-
-  public loadAllExtensions() {
-    this.logger.debug(`Started loading extensions from dir ${this.extDirPath}...`);
-    const files = fs.readdirSync(this.extDirPath).filter((f) => !f.endsWith('.js.map'));
-
-    for (const file of files) {
-      this.loadExtension(file);
-    }
-
-    this.logger.info('Loaded extensions.');
-  }
-
-  public loadExtension(name: string): ZeoliteExtension {
-    const extCls: typeof ZeoliteExtension = require(path.join(this.extDirPath, name)).default;
-    const ext = new extCls(this);
-
-    this.extensions.set(ext.name, ext);
-    ext.onLoad();
-
-    this.logger.debug(`Loaded extension ${ext.name}`);
-
-    return ext;
-  }
-
-  public unloadExtension(name: string) {
-    if (!this.extensions.has(name)) {
-      throw new Error('this extension does not exist.');
-    }
-
-    const ext = this.extensions.get(name);
-    const extPath = require.resolve(path.join(this.extDirPath, ext!.name));
-
-    delete require.cache[extPath];
-    this.extensions.delete(ext!.name);
-
-    this.logger.debug(`Unloaded extension ${ext!.name}.`);
-  }
-
-  public reloadExtension(name: string): ZeoliteExtension {
-    this.unloadExtension(name);
-    return this.loadExtension(name);
   }
 
   public addMiddleware(func: MiddlewareFunc) {
@@ -284,9 +184,5 @@ export class ZeoliteClient extends Client {
     if (permissions) link += `&permissions=${permissions}`;
     if (scopes) link += `&scopes=${scopes.join('%20')}`;
     return link;
-  }
-
-  public deployCommands() {
-    // todo
   }
 }

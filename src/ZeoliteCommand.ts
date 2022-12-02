@@ -1,4 +1,9 @@
-import { CreateApplicationCommandOptions, ChatInputApplicationCommand, ApplicationCommandOptions, Constants } from 'oceanic.js';
+import {
+  CreateApplicationCommandOptions,
+  ChatInputApplicationCommand,
+  ApplicationCommandOptions,
+  Constants,
+} from 'oceanic.js';
 import { ZeoliteClient } from './ZeoliteClient';
 import { ZeoliteContext } from './ZeoliteContext';
 

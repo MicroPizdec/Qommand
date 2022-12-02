@@ -1,4 +1,4 @@
-import { MessageComponent } from "oceanic.js";
+import { MessageComponent } from 'oceanic.js';
 
 export class ActionRow {
   public readonly type: 1 = 1;

@@ -3,17 +3,20 @@ import { Member, User } from 'oceanic.js';
 import fs from 'fs';
 import path from 'path';
 import util from 'util';
+import { getLogger, Logger } from '@log4js-node/log4js-api';
 
-let self: ZeoliteLocalization;
-
-export class ZeoliteLocalization {
+export class ZeoliteLocalizationManager {
   public languageStrings: Record<string, Record<string, string>> = {};
   public userLanguages: Record<string, string | undefined> = {};
   public readonly client: ZeoliteClient;
+  public langsDir: string;
+  private logger: Logger;
 
   public constructor(client: ZeoliteClient) {
     this.client = client;
-    self = this;
+    this.logger = getLogger('ZeoliteLocalizationManager');
+
+    this.logger.info('Initialized localization manager.');
   }
 
   // this method should be overridden by developer
@@ -25,6 +28,10 @@ export class ZeoliteLocalization {
     const lang = this.userLanguages[user.id] || 'en';
     const langStrs = this.languageStrings[lang];
     return langStrs[str] ? util.format(langStrs[str], ...args) : `${str} ${args.join(' ')}`;
+  }
+
+  public setLangsDir(dir: string) {
+    this.langsDir = dir;
   }
 
   public reloadLanguages() {
@@ -40,14 +47,14 @@ export class ZeoliteLocalization {
   }
 
   public loadLanguages() {
-    const langs = fs.readdirSync(this.client.langsDirPath).map((i) => i.split('.')[0]);
+    const langs = fs.readdirSync(this.langsDir).map((i) => i.split('.')[0]);
 
     for (const lang of langs) {
-      const strs = require(path.join(this.client.langsDirPath, lang)).default;
-      self.languageStrings[lang] = strs;
+      const strs = require(path.join(this.langsDir, lang)).default;
+      this.languageStrings[lang] = strs;
       this.client.logger.debug(`Loaded language ${lang}`);
     }
 
-    this.client.logger.info('Loaded all language files.');
+    this.logger.info('Loaded all language files.');
   }
 }
