@@ -30,8 +30,9 @@ export class ZeoliteLocalizationManager {
     return langStrs[str] ? util.format(langStrs[str], ...args) : `${str} ${args.join(' ')}`;
   }
 
-  public setLangsDir(dir: string) {
+  public setLangsDir(dir: string): this {
     this.langsDir = dir;
+    return this;
   }
 
   public reloadLanguages() {

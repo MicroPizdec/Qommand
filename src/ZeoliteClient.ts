@@ -1,4 +1,4 @@
-import { Client, ClientEvents, Constants, CommandInteraction, Member, User } from 'oceanic.js';
+import { Client, ClientEvents, Constants, CommandInteraction, Member, User, InteractionContent } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
 import { ZeoliteClientOptions } from './ZeoliteClientOptions';
 import { ZeoliteExtension } from './ZeoliteExtension';
@@ -184,5 +184,13 @@ export class ZeoliteClient extends Client {
     if (permissions) link += `&permissions=${permissions}`;
     if (scopes) link += `&scopes=${scopes.join('%20')}`;
     return link;
+  }
+
+  public async executeWebhook(id: string, token: string, payload: InteractionContent): Promise<unknown> {
+    return this.rest.request({
+      method: "POST",
+      path: `/webhooks/${id}/${token}`,
+      json: payload,
+    });
   }
 }
