@@ -52,11 +52,9 @@ export class ZeoliteClient extends Client {
     this.extensionsManager = new ZeoliteExtensionsManager(this);
     this.owners = options.owners || [];
 
-    this.on('ready', () => {
+    this.on('ready', async () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
-      for (const cmd of this.commandsManager.commands.values()) {
-        this.application.createGlobalCommand(cmd.json());
-      }
+      await this.commandsManager.updateCommands();
     });
 
     this.on('commandError', (ctx, error) => {
