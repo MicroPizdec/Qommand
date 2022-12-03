@@ -50,7 +50,7 @@ export class ZeoliteClient extends Client {
 
     this.commandsManager = new ZeoliteCommandsManager(this);
     this.extensionsManager = new ZeoliteExtensionsManager(this);
-    this.owners = options.owners;
+    this.owners = options.owners || [];
 
     this.on('ready', () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
