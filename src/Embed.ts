@@ -79,7 +79,7 @@ export class Embed {
 
 interface EmbedFooter {
   text: string;
-  icon_url?: string;
+  iconURL?: string;
 }
 
 interface EmbedImage {
@@ -89,7 +89,7 @@ interface EmbedImage {
 interface EmbedAuthor {
   name: string;
   url?: string;
-  icon_url?: string;
+  iconURL?: string;
 }
 
 interface EmbedField {

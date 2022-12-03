@@ -1,3 +1,6 @@
+/**
+ * @deprecated
+ */
 export class ZeoliteLogger {
   private level: LoggerLevel;
   public name: string;
