@@ -25,14 +25,18 @@ export class ZeoliteExtensionsManager {
   }
 
   public loadAllExtensions() {
-    this.logger.debug(`Started loading extensions from  ${this.extensionsDir}...`);
+    this.logger.info(`Started loading extensions from  ${this.extensionsDir}...`);
     const files = fs.readdirSync(this.extensionsDir).filter((f) => !f.endsWith('.js.map'));
+    let count = 0;
 
+    this.logger.level = 'warn';
     for (const file of files) {
       this.loadExtension(file);
+      count++;
     }
 
-    this.logger.info('Loaded extensions.');
+    this.logger.level = 'debug';
+    this.logger.info(`Loaded ${count} extensions.`);
   }
 
   public loadExtension(name: string): ZeoliteExtension {

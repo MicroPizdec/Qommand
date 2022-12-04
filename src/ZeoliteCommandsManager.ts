@@ -29,12 +29,16 @@ export class ZeoliteCommandsManager {
   public loadAllCommands() {
     this.logger.info(`Started loading commands from ${this.commandsDir}...`);
     const files = fs.readdirSync(this.commandsDir).filter((f) => !f.endsWith('.js.map'));
+    let count = 0;
+    this.logger.level = 'warn';
 
     for (const file of files) {
       this.loadCommand(file);
+      count++;
     }
 
-    this.logger.info('Loaded all commands.');
+    this.logger.level = getLogger().level;
+    this.logger.info(`Loaded ${count} commands.`);
   }
 
   public loadCommand(name: string): ZeoliteCommand {
@@ -84,7 +88,7 @@ export class ZeoliteCommandsManager {
     for (const cmd of this.commands.values()) {
       try {
         await this.client.application.createGlobalCommand(cmd.json());
-        this.logger.info(`Updated command ${cmd.name}.`);
+        this.logger.debug(`Updated command ${cmd.name}.`);
       } catch (err: any) {
         this.logger.error(`Failed to update command ${cmd.name}:`);
         console.error(err);

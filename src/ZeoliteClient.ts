@@ -45,6 +45,7 @@ export class ZeoliteClient extends Client {
 
     this.logger = getLogger('ZeoliteClient');
     this.oceanicLogger = getLogger('Oceanic');
+    this.logger.info("Initialized loggers.");
 
     this.on('debug', (msg) => this.oceanicLogger.debug(msg));
 
