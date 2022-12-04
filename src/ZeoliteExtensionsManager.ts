@@ -29,13 +29,11 @@ export class ZeoliteExtensionsManager {
     const files = fs.readdirSync(this.extensionsDir).filter((f) => !f.endsWith('.js.map'));
     let count = 0;
 
-    this.logger.level = 'warn';
     for (const file of files) {
       this.loadExtension(file);
       count++;
     }
 
-    this.logger.level = 'debug';
     this.logger.info(`Loaded ${count} extensions.`);
   }
 
@@ -52,7 +50,7 @@ export class ZeoliteExtensionsManager {
     this.extensions.set(ext.name, ext);
     ext.onLoad();
 
-    this.logger.info(`Loaded extension ${ext.name}`);
+    this.logger.debug(`Loaded extension ${ext.name}`);
 
     return ext;
   }
@@ -68,7 +66,7 @@ export class ZeoliteExtensionsManager {
     delete require.cache[extPath];
     this.extensions.delete(ext!.name);
 
-    this.logger.info(`Unloaded extension ${ext!.name}.`);
+    this.logger.debug(`Unloaded extension ${ext!.name}.`);
   }
 
   public reloadExtension(name: string): ZeoliteExtension {

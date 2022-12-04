@@ -30,14 +30,12 @@ export class ZeoliteCommandsManager {
     this.logger.info(`Started loading commands from ${this.commandsDir}...`);
     const files = fs.readdirSync(this.commandsDir).filter((f) => !f.endsWith('.js.map'));
     let count = 0;
-    this.logger.level = 'warn';
 
     for (const file of files) {
       this.loadCommand(file);
       count++;
     }
 
-    this.logger.level = getLogger().level;
     this.logger.info(`Loaded ${count} commands.`);
   }
 
@@ -59,7 +57,7 @@ export class ZeoliteCommandsManager {
 
     this.commands.set(cmd.name, cmd);
 
-    this.logger.info(`Loaded command ${cmd.name}.`);
+    this.logger.debug(`Loaded command ${cmd.name}.`);
 
     return cmd;
   }
@@ -75,7 +73,7 @@ export class ZeoliteCommandsManager {
     delete require.cache[cmdPath];
     this.commands.delete(cmd!.name);
 
-    this.logger.info(`Unloaded command ${name}.`);
+    this.logger.debug(`Unloaded command ${name}.`);
   }
 
   public reloadCommand(name: string): ZeoliteCommand {
@@ -94,5 +92,6 @@ export class ZeoliteCommandsManager {
         console.error(err);
       }
     }
+    this.logger.info('Updated all application commands.')
   }
 }

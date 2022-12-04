@@ -51,12 +51,12 @@ export class ZeoliteLocalizationManager {
   }
 
   public loadLanguages() {
-    const langs = fs.readdirSync(this.langsDir).map((i) => i.split('.')[0]);
+    const langs = fs.readdirSync(this.langsDir).filter(f => !f.endsWith(".js.map")).map((i) => i.split('.')[0]);
 
     for (const lang of langs) {
       const strs = require(path.join(this.langsDir, lang)).default;
       this.languageStrings[lang] = strs;
-      this.client.logger.debug(`Loaded language ${lang}`);
+      this.logger.debug(`Loaded language ${lang}`);
     }
 
     this.logger.info('Loaded all language files.');
