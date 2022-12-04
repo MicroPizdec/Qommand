@@ -1,9 +1,6 @@
 import { Client, ClientEvents, Constants, CommandInteraction, Member, User, InteractionContent } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
 import { ZeoliteClientOptions } from './ZeoliteClientOptions';
-import { ZeoliteExtension } from './ZeoliteExtension';
-import fs from 'fs';
-import path from 'path';
 import { ZeoliteContext } from './ZeoliteContext';
 import { ZeoliteLocalizationManager } from './ZeoliteLocalizationManager';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
@@ -45,7 +42,7 @@ export class ZeoliteClient extends Client {
 
     this.logger = getLogger('ZeoliteClient');
     this.oceanicLogger = getLogger('Oceanic');
-    this.logger.info("Initialized loggers.");
+    this.logger.debug("Initialized loggers.");
 
     this.on('debug', (msg) => this.oceanicLogger.debug(msg));
 

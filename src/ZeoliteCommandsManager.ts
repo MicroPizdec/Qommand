@@ -18,7 +18,7 @@ export class ZeoliteCommandsManager {
     this.logger = getLogger('ZeoliteCommandsManager');
     this.cooldowns = new Map();
 
-    this.logger.info('Initialized commands manager.');
+    this.logger.debug('Initialized commands manager.');
   }
 
   public setCommandsDir(dir: string): this {

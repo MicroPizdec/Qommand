@@ -5,6 +5,9 @@ import path from 'path';
 import util from 'util';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
 
+/**
+ * Localization manager
+ */
 export class ZeoliteLocalizationManager {
   public languageStrings: Record<string, Record<string, string>> = {};
   public userLanguages: Record<string, string | undefined> = {};
@@ -16,7 +19,7 @@ export class ZeoliteLocalizationManager {
     this.client = client;
     this.logger = getLogger('ZeoliteLocalizationManager');
 
-    this.logger.info('Initialized localization manager.');
+    this.logger.debug('Initialized localization manager.');
   }
 
   // this method should be overridden by developer

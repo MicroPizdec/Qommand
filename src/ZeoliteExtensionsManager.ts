@@ -16,7 +16,7 @@ export class ZeoliteExtensionsManager {
     this.extensions = new Map();
     this.logger = getLogger('ZeoliteExtensionsManager');
 
-    this.logger.info('Initialized extensions manager.');
+    this.logger.debug('Initialized extensions manager.');
   }
 
   public setExtensionsDir(dir: string): this {
@@ -25,7 +25,7 @@ export class ZeoliteExtensionsManager {
   }
 
   public loadAllExtensions() {
-    this.logger.info(`Started loading extensions from  ${this.extensionsDir}...`);
+    this.logger.info(`Started loading extensions from ${this.extensionsDir}...`);
     const files = fs.readdirSync(this.extensionsDir).filter((f) => !f.endsWith('.js.map'));
     let count = 0;
 
@@ -40,7 +40,13 @@ export class ZeoliteExtensionsManager {
   }
 
   public loadExtension(name: string): ZeoliteExtension {
-    const extCls: typeof ZeoliteExtension = require(path.join(this.extensionsDir, name)).default;
+    let extCls: typeof ZeoliteExtension;
+    try {
+      extCls = require(path.join(this.extensionsDir, name)).default;
+    } catch (err: any) {
+      this.logger.error(`Failed to load extension ${name}:`);
+      throw err;
+    }
     const ext = new extCls(this.client);
 
     this.extensions.set(ext.name, ext);

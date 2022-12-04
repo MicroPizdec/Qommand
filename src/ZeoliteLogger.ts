@@ -1,5 +1,5 @@
 /**
- * @deprecated
+ * @deprecated use log4js instead
  */
 export class ZeoliteLogger {
   private level: LoggerLevel;
