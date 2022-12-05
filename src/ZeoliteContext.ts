@@ -9,6 +9,7 @@ import {
   ComponentInteraction,
   AnyTextChannel,
   InteractionOptionsWrapper,
+  InteractionResponseTypes,
 } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
 
@@ -21,12 +22,15 @@ interface CollectButtonOptions {
 
 export class ZeoliteContext {
   private data: Map<string, any> = new Map<string, any>();
+  public acknowledged: boolean;
 
   public constructor(
     public readonly client: ZeoliteClient,
     public readonly interaction: CommandInteraction,
     public readonly command: ZeoliteCommand,
-  ) {}
+  ) {
+    this.acknowledged = false;
+  }
 
   public get user(): User {
     return this.interaction.member?.user || this.interaction.user!;
@@ -53,14 +57,19 @@ export class ZeoliteContext {
   }
 
   public async reply(options: InteractionContent) {
-    return this.interaction.createMessage(options);
+    await this.client.rest.interactions.createInteractionResponse(this.interaction.id, this.interaction.token, {
+      type: InteractionResponseTypes.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: options,
+    });
+    this.acknowledged = true;
   }
 
   public async defer(flags?: number) {
-    return this.interaction.defer(flags);
+    await this.interaction.defer(flags);
+    this.acknowledged = true;
   }
 
-  public async editReply(options: InteractionContent) {
+  public async editReply(options: InteractionContent): Promise<Message> {
     return this.interaction.editOriginal(options);
   }
 
