@@ -1,16 +1,19 @@
-import { Client, ClientEvents, Constants, CommandInteraction, Member, User, InteractionContent } from 'oceanic.js';
+import { Client, ClientEvents, Constants, CommandInteraction, Member, User, InteractionContent, ClientOptions } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
-import { ZeoliteClientOptions } from './ZeoliteClientOptions';
 import { ZeoliteContext } from './ZeoliteContext';
 import { ZeoliteLocalizationManager } from './ZeoliteLocalizationManager';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
 import { ZeoliteCommandsManager } from './ZeoliteCommandsManager';
 import { ZeoliteExtensionsManager } from './ZeoliteExtensionsManager';
 
+export interface ZeoliteClientOptions extends ClientOptions {
+  owners?: string[];
+}
+
 export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
 
 export interface ZeoliteEvents extends ClientEvents {
-  noPermissions: [ctx: ZeoliteContext, permissions: string[]];
+  noPermissions: [ctx: ZeoliteContext, permissions: Constants.PermissionName[]];
   commandCooldown: [ctx: ZeoliteContext, secondsLeft: number];
   ownerOnlyCommand: [ctx: ZeoliteContext];
   guildOnlyCommand: [ctx: ZeoliteContext];
@@ -44,11 +47,12 @@ export class ZeoliteClient extends Client {
     this.oceanicLogger = getLogger('Oceanic');
     this.logger.debug("Initialized loggers.");
 
-    this.on('debug', (msg) => this.oceanicLogger.debug(msg));
-
     this.commandsManager = new ZeoliteCommandsManager(this);
     this.extensionsManager = new ZeoliteExtensionsManager(this);
+    this.localizationManager = new ZeoliteLocalizationManager(this);
     this.owners = options.owners || [];
+
+    this.on('debug', (msg) => this.oceanicLogger.debug(msg));
 
     this.on('ready', async () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
@@ -60,16 +64,14 @@ export class ZeoliteClient extends Client {
       console.error(error);
     });
 
-    this.on('warn', (msg) => this.logger.warn(msg));
+    this.on('warn', (msg) => this.oceanicLogger.warn(msg));
 
     this.on('error', (err, id) => {
-      this.logger.error(`Error on shard ${id}:`);
+      this.oceanicLogger.error(`Error on shard ${id}:`);
       console.error(err);
     });
 
     this.on('interactionCreate', this.handleCommand);
-
-    this.localizationManager = new ZeoliteLocalizationManager(this);
 
     this.logger.info('Initialized ZeoliteClient.');
   }
@@ -85,6 +87,7 @@ export class ZeoliteClient extends Client {
     if (!cmd) return;
 
     const ctx = new ZeoliteContext(this, interaction, cmd);
+    this.logger.debug(`Created ZeoliteContext for interaction /${cmd.name}`);
 
     await this.handleMiddlewares(cmd, ctx);
   }
@@ -130,6 +133,7 @@ export class ZeoliteClient extends Client {
         let expiration = (cmdCooldowns.get((ctx.member || ctx.user!).id) as number) + ctx.command.cooldown * 1000;
         if (now < expiration) {
           let secsLeft = Math.floor((expiration - now) / 1000);
+          this.logger.debug(`Command ${ctx.command.name} didn't run due to being on cooldown. Seconds left: ${secsLeft}`);
           this.emit('commandCooldown', ctx, secsLeft);
           return;
         }
@@ -138,6 +142,7 @@ export class ZeoliteClient extends Client {
 
     try {
       if (ctx.command.guildOnly && !this.validatePermissions(ctx.member!, ctx.command.requiredPermissions)) {
+        this.logger.debug(`Command ${ctx.command.name} didn't run because ${ctx.user.tag} doesn't have ${ctx.command.requiredPermissions.join()} permissions.`);
         this.emit('noPermissions', ctx, ctx.command.requiredPermissions);
         return;
       }

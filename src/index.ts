@@ -1,5 +1,4 @@
 export * from './ZeoliteClient';
-export * from './ZeoliteClientOptions';
 export * from './ZeoliteCommand';
 export * from './ZeoliteContext';
 export * from './ZeoliteExtension';
