@@ -22,7 +22,7 @@ export class ZeoliteLocalizationManager {
     this.logger.debug('Initialized localization manager.');
   }
 
-  // this method should be overridden by developer
+  // this method should be overridden by developer, or not?
   public getUserLanguage(user: Member | User): string {
     return 'en';
   }

@@ -54,7 +54,7 @@ export class ZeoliteClient extends Client {
 
     this.on('debug', (msg) => this.oceanicLogger.debug(msg));
 
-    this.on('ready', async () => {
+    this.once('ready', async () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
       await this.commandsManager.updateCommands();
     });
@@ -80,7 +80,7 @@ export class ZeoliteClient extends Client {
     if (interaction.type != 2) return;
 
     this.logger.debug(
-      `Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id})`,
+      `Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id}) in ${interaction.guild ? interaction.guild.name : 'bot DM'}`,
     );
 
     const cmd: ZeoliteCommand | undefined = this.commandsManager.commands.get(interaction.data.name);
@@ -169,7 +169,7 @@ export class ZeoliteClient extends Client {
 
   public async connect() {
     this.logger.info('Logging in...');
-    return super.connect();
+    await super.connect();
   }
 
   public isOwner(user: Member | User): boolean {
@@ -185,13 +185,5 @@ export class ZeoliteClient extends Client {
     if (permissions) link += `&permissions=${permissions}`;
     if (scopes) link += `&scopes=${scopes.join('%20')}`;
     return link;
-  }
-
-  public async executeWebhook(id: string, token: string, payload: InteractionContent): Promise<unknown> {
-    return this.rest.request({
-      method: "POST",
-      path: `/webhooks/${id}/${token}`,
-      json: payload,
-    });
   }
 }

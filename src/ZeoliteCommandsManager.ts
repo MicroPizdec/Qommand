@@ -27,6 +27,9 @@ export class ZeoliteCommandsManager {
   }
 
   public loadAllCommands() {
+    if (!this.commandsDir) {
+      throw new Error("Command dir not set");
+    }
     this.logger.info(`Started loading commands from ${this.commandsDir}...`);
     const files = fs.readdirSync(this.commandsDir).filter((f) => !f.endsWith('.js.map'));
     let count = 0;
@@ -51,7 +54,7 @@ export class ZeoliteCommandsManager {
     const cmd = new cmdCls(this.client);
 
     if (!cmd.preLoad()) {
-      this.logger.warn(`Command ${cmd.name} didn't loaded due to failed pre-load check.`);
+      this.logger.warn(`Command ${cmd.name} didn't load due to failed pre-load check.`);
       return cmd;
     }
 
