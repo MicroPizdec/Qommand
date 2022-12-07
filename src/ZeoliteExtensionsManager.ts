@@ -62,6 +62,7 @@ export class ZeoliteExtensionsManager {
 
     const ext = this.extensions.get(name);
     const extPath = require.resolve(path.join(this.extensionsDir, ext!.name));
+    ext?.onUnload();
 
     delete require.cache[extPath];
     this.extensions.delete(ext!.name);

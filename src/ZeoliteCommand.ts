@@ -60,8 +60,8 @@ export class ZeoliteCommand {
     return true;
   }
 
-  public async run(ctx: ZeoliteContext) {
-    throw new Error('abstract class method.');
+  public async run(ctx: ZeoliteContext): Promise<void> {
+    throw new Error(`${this.constructor.name} does not have the run() method`);
   }
 
   public async update(): Promise<ChatInputApplicationCommand | undefined> {
@@ -77,6 +77,10 @@ export class ZeoliteCommand {
       nameLocalizations: this.nameLocalizations,
       descriptionLocalizations: this.descriptionLocalizations,
     };
+  }
+
+  public reload(): ZeoliteCommand {
+    return this.client.commandsManager.reloadCommand(this.name);
   }
 }
 

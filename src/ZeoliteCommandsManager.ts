@@ -3,6 +3,7 @@ import { ZeoliteClient } from './ZeoliteClient';
 import { ZeoliteCommand } from './ZeoliteCommand';
 import path from 'path';
 import fs from 'fs';
+import { ChatInputApplicationCommand } from 'oceanic.js';
 
 export class ZeoliteCommandsManager {
   public commands: Map<string, ZeoliteCommand>;
@@ -28,7 +29,7 @@ export class ZeoliteCommandsManager {
 
   public loadAllCommands() {
     if (!this.commandsDir) {
-      throw new Error("Command dir not set");
+      throw new Error("Command dir not set.");
     }
     this.logger.info(`Started loading commands from ${this.commandsDir}...`);
     const files = fs.readdirSync(this.commandsDir).filter((f) => !f.endsWith('.js.map'));
@@ -52,22 +53,22 @@ export class ZeoliteCommandsManager {
     }
 
     const cmd = new cmdCls(this.client);
-
     if (!cmd.preLoad()) {
       this.logger.warn(`Command ${cmd.name} didn't load due to failed pre-load check.`);
       return cmd;
     }
+    if (this.commands.has(cmd.name)) {
+      throw new Error(`Command ${cmd.name} is already exist.`);
+    }
 
     this.commands.set(cmd.name, cmd);
-
     this.logger.debug(`Loaded command ${cmd.name}.`);
-
     return cmd;
   }
 
   public unloadCommand(name: string) {
     if (!this.commands.has(name)) {
-      throw new Error('this command does not exist.');
+      throw new Error(`Command ${name} does not exist.`);
     }
 
     const cmd = this.commands.get(name);
@@ -86,15 +87,21 @@ export class ZeoliteCommandsManager {
 
   public async updateCommands() {
     this.logger.info('Started updating application commands...');
-    for (const cmd of this.commands.values()) {
-      try {
-        await this.client.application.createGlobalCommand(cmd.json());
-        this.logger.debug(`Updated command ${cmd.name}.`);
-      } catch (err: any) {
-        this.logger.error(`Failed to update command ${cmd.name}:`);
-        console.error(err);
-      }
+    const commandList = [...this.commands.values()].map(cmd => cmd.json());
+    try {
+      await this.client.application.bulkEditGlobalCommands(commandList);
+    } catch (e: any) {
+      this.logger.error('Failed to update application commands:');
+      throw e;
     }
     this.logger.info('Updated all application commands.')
+  }
+
+  public async updateCommand(name: string): Promise<ChatInputApplicationCommand | undefined> {
+    if (!this.commands.has(name)) {
+      throw new Error("this command does not exist.");
+    }
+
+    return this.commands.get(name)?.update();
   }
 }

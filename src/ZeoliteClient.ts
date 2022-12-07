@@ -24,6 +24,8 @@ export interface ZeoliteEvents extends ClientEvents {
 export declare interface ZeoliteClient {
   on<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
   on(event: string, listener: (...args: any) => void): this;
+  once<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
+  once(event: string, listener: (...args: any) => void): this;
   off<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
   off(event: string, listener: (...args: any) => void): this;
   emit<K extends keyof ZeoliteEvents>(event: K, ...args: ZeoliteEvents[K]): boolean;
@@ -177,6 +179,7 @@ export class ZeoliteClient extends Client {
   }
 
   public addMiddleware(func: MiddlewareFunc) {
+    if (typeof func != "function") throw new Error("The middleware should be a function.");
     this.middlewares.push(func);
   }
 
