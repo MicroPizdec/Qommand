@@ -27,7 +27,7 @@ export class ZeoliteCommandsManager {
     return this;
   }
 
-  public loadAllCommands() {
+  public loadAllCommands(): void {
     if (!this.commandsDir) {
       throw new Error("Command dir not set.");
     }
@@ -48,7 +48,7 @@ export class ZeoliteCommandsManager {
     try {
       cmdCls = require(path.join(this.commandsDir, name)).default;
     } catch (err: any) {
-      this.logger.error(`Failed to load command ${name}:`);
+      this.logger.error(`Failed to load command ${name}:\n`, err);
       throw err;
     }
 
@@ -58,6 +58,7 @@ export class ZeoliteCommandsManager {
       return cmd;
     }
     if (this.commands.has(cmd.name)) {
+      this.logger.warn(`Attempted to load already existing command ${cmd.name}`);
       throw new Error(`Command ${cmd.name} is already exist.`);
     }
 
@@ -66,7 +67,7 @@ export class ZeoliteCommandsManager {
     return cmd;
   }
 
-  public unloadCommand(name: string) {
+  public unloadCommand(name: string): void {
     if (!this.commands.has(name)) {
       throw new Error(`Command ${name} does not exist.`);
     }
@@ -80,21 +81,21 @@ export class ZeoliteCommandsManager {
     this.logger.debug(`Unloaded command ${name}.`);
   }
 
+
   public reloadCommand(name: string): ZeoliteCommand {
     this.unloadCommand(name);
     return this.loadCommand(name);
   }
 
-  public async updateCommands() {
-    this.logger.info('Started updating application commands...');
+  public async updateCommands(): Promise<void> {
     const commandList = [...this.commands.values()].map(cmd => cmd.json());
     try {
       await this.client.application.bulkEditGlobalCommands(commandList);
     } catch (e: any) {
-      this.logger.error('Failed to update application commands:');
+      this.logger.error('Failed to update application commands:\n', e);
       throw e;
     }
-    this.logger.info('Updated all application commands.')
+    this.logger.info('Updated all application commands.');
   }
 
   public async updateCommand(name: string): Promise<ChatInputApplicationCommand | undefined> {

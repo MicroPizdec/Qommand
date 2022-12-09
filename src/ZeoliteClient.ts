@@ -73,12 +73,12 @@ export class ZeoliteClient extends Client {
       console.error(err);
     });
 
-    this.on('interactionCreate', this.handleCommand);
+    this.on('interactionCreate', this.onInteraction);
 
     this.logger.info('Initialized ZeoliteClient.');
   }
 
-  private async handleCommand(interaction: CommandInteraction) {
+  private async onInteraction(interaction: CommandInteraction): Promise<void> {
     if (interaction.type != 2) return;
 
     this.logger.debug(
@@ -94,7 +94,7 @@ export class ZeoliteClient extends Client {
     await this.handleMiddlewares(cmd, ctx);
   }
 
-  private async handleMiddlewares(cmd: ZeoliteCommand, ctx: ZeoliteContext) {
+  private async handleMiddlewares(cmd: ZeoliteCommand, ctx: ZeoliteContext): Promise<void> {
     let prevIndex = -1;
     let stack = [...this.middlewares, this.runCommand.bind(this)];
 
@@ -111,7 +111,7 @@ export class ZeoliteClient extends Client {
     await runner(0);
   }
 
-  private async runCommand(ctx: ZeoliteContext, next: () => Promise<void> | void) {
+  private async runCommand(ctx: ZeoliteContext, next: () => Promise<void> | void): Promise<void> {
     if (ctx.command.ownerOnly && !this.isOwner(ctx.member || ctx.user!)) {
       this.logger.debug(`Command ${ctx.command.name} didn't run because ${ctx.user.tag} isn't a bot owner.`);
       this.emit('ownerOnlyCommand', ctx);
@@ -169,7 +169,7 @@ export class ZeoliteClient extends Client {
     return true;
   }
 
-  public async connect() {
+  public async connect(): Promise<void> {
     this.logger.info('Logging in...');
     await super.connect();
   }
@@ -178,7 +178,7 @@ export class ZeoliteClient extends Client {
     return this.owners.includes(user.id);
   }
 
-  public addMiddleware(func: MiddlewareFunc) {
+  public addMiddleware(func: MiddlewareFunc): void {
     if (typeof func != "function") throw new Error("The middleware should be a function.");
     this.middlewares.push(func);
   }

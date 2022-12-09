@@ -8,11 +8,11 @@ export class ZeoliteExtension {
     this.client = client;
   }
 
-  public onLoad() {
-    throw new Error('abstract class method.');
+  public onLoad(): void {
+    throw new Error(`${this.constructor.name} doesn't have the onLoad() method.`);
   }
 
-  public onUnload() {
-    throw new Error('abstract class method.');
+  public onUnload(): void {
+    throw new Error(`${this.constructor.name} doesn't have the onUnload() method.`);
   }
 }

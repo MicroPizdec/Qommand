@@ -56,7 +56,11 @@ export class ZeoliteContext {
     return this.interaction.data.options;
   }
 
-  public async reply(options: InteractionContent) {
+  public get locale(): string {
+    return this.interaction.locale;
+  }
+
+  public async reply(options: InteractionContent): Promise<void> {
     await this.client.rest.interactions.createInteractionResponse(this.interaction.id, this.interaction.token, {
       type: InteractionResponseTypes.CHANNEL_MESSAGE_WITH_SOURCE,
       data: options,
@@ -64,7 +68,7 @@ export class ZeoliteContext {
     this.acknowledged = true;
   }
 
-  public async defer(flags?: number) {
+  public async defer(flags?: number): Promise<void> {
     await this.interaction.defer(flags);
     this.acknowledged = true;
   }
@@ -77,7 +81,7 @@ export class ZeoliteContext {
     return this.interaction.createFollowup(options);
   }
 
-  public async deleteReply() {
+  public async deleteReply(): Promise<void> {
     return this.interaction.deleteOriginal();
   }
 
@@ -85,7 +89,7 @@ export class ZeoliteContext {
     return this.client.localizationManager.getString(this.member || this.user!, str, ...args);
   }
 
-  public set(key: string, data: any) {
+  public set(key: string, data: any): void {
     this.data.set(key, data);
   }
 

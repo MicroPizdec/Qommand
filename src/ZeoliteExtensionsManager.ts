@@ -24,7 +24,7 @@ export class ZeoliteExtensionsManager {
     return this;
   }
 
-  public loadAllExtensions() {
+  public loadAllExtensions(): void {
     this.logger.info(`Started loading extensions from ${this.extensionsDir}...`);
     const files = fs.readdirSync(this.extensionsDir).filter((f) => !f.endsWith('.js.map'));
     let count = 0;
@@ -42,7 +42,7 @@ export class ZeoliteExtensionsManager {
     try {
       extCls = require(path.join(this.extensionsDir, name)).default;
     } catch (err: any) {
-      this.logger.error(`Failed to load extension ${name}:`);
+      this.logger.error(`Failed to load extension ${name}:\n`, err);
       throw err;
     }
     const ext = new extCls(this.client);
@@ -55,7 +55,7 @@ export class ZeoliteExtensionsManager {
     return ext;
   }
 
-  public unloadExtension(name: string) {
+  public unloadExtension(name: string): void {
     if (!this.extensions.has(name)) {
       throw new Error('this extension does not exist.');
     }

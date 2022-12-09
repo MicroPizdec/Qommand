@@ -13,6 +13,7 @@ export class ZeoliteLocalizationManager {
   public userLanguages: Record<string, string | undefined> = {};
   public readonly client: ZeoliteClient;
   public langsDir: string;
+  public defaultLang: string = "en-US";
   private logger: Logger;
 
   public constructor(client: ZeoliteClient) {
@@ -28,7 +29,7 @@ export class ZeoliteLocalizationManager {
   }
 
   public getString(user: Member | User, str: string, ...args: any[]): string {
-    const lang = this.userLanguages[user.id] || 'en';
+    const lang = this.userLanguages[user.id] || this.defaultLang;
     const langStrs = this.languageStrings[lang];
     return langStrs[str] ? util.format(langStrs[str], ...args) : `${str} ${args.join(' ')}`;
   }
@@ -38,7 +39,12 @@ export class ZeoliteLocalizationManager {
     return this;
   }
 
-  public reloadLanguages() {
+  public setDefaultLang(lang: string): this {
+    this.defaultLang = lang;
+    return this;
+  }
+
+  public reloadLanguages(): void {
     const langs = Object.keys(this.languageStrings);
 
     for (const lang of langs) {
@@ -50,7 +56,11 @@ export class ZeoliteLocalizationManager {
     this.loadLanguages();
   }
 
-  public loadLanguages() {
+  public loadLanguages(): void {
+    if (!this.langsDir) {
+      throw new Error("Languages dir not set.");
+    }
+
     const langs = fs.readdirSync(this.langsDir).filter(f => !f.endsWith(".js.map")).map((i) => i.split('.')[0]);
 
     for (const lang of langs) {

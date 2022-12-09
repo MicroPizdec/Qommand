@@ -28,8 +28,8 @@ export class Embed {
     return this;
   }
 
-  public setTimestamp(timestamp: string): this {
-    this.timestamp = timestamp;
+  public setTimestamp(timestamp?: string): this {
+    this.timestamp = timestamp || new Date().toISOString();
     return this;
   }
 
