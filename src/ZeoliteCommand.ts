@@ -1,4 +1,9 @@
-import { ChatInputApplicationCommandStructure, ApplicationCommand, ApplicationCommandOptions, Constants } from 'eris';
+import {
+  CreateApplicationCommandOptions,
+  ChatInputApplicationCommand,
+  ApplicationCommandOptions,
+  Constants,
+} from 'oceanic.js';
 import { ZeoliteClient } from './ZeoliteClient';
 import { ZeoliteContext } from './ZeoliteContext';
 
@@ -39,29 +44,43 @@ export class ZeoliteCommand {
     return this.data.cooldown;
   }
 
-  public get requiredPermissions(): (keyof Constants['Permissions'])[] {
+  public get requiredPermissions(): Constants.PermissionName[] {
     return this.data.requiredPermissions ? this.data.requiredPermissions : (this.data.requiredPermissions = []);
+  }
+
+  public get nameLocalizations(): Record<string, string> | undefined {
+    return this.data.nameLocalizations;
+  }
+
+  public get descriptionLocalizations(): Record<string, string> | undefined {
+    return this.data.descriptionLocalizations;
   }
 
   public preLoad(): boolean {
     return true;
   }
 
-  public async run(ctx: ZeoliteContext) {
-    throw new Error('abstract class method.');
+  public async run(ctx: ZeoliteContext): Promise<void> {
+    throw new Error(`${this.constructor.name} does not have the run() method`);
   }
 
-  public async update(): Promise<ApplicationCommand | undefined> {
-    return this.client.createCommand(this.json());
+  public async update(): Promise<ChatInputApplicationCommand | undefined> {
+    return this.client.application.createGlobalCommand(this.json());
   }
 
-  public json(): ChatInputApplicationCommandStructure {
+  public json(): CreateApplicationCommandOptions {
     return {
       type: 1,
       name: this.name,
       description: this.description,
       options: this.options,
+      nameLocalizations: this.nameLocalizations,
+      descriptionLocalizations: this.descriptionLocalizations,
     };
+  }
+
+  public reload(): ZeoliteCommand {
+    return this.client.commandsManager.reloadCommand(this.name);
   }
 }
 
@@ -73,5 +92,7 @@ export interface ZeoliteCommandStructure {
   ownerOnly?: boolean;
   guildOnly?: boolean;
   cooldown?: number;
-  requiredPermissions?: (keyof Constants['Permissions'])[];
+  requiredPermissions?: Constants.PermissionName[];
+  nameLocalizations?: Record<string, string>;
+  descriptionLocalizations?: Record<string, string>;
 }

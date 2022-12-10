@@ -4,15 +4,14 @@ import {
   User,
   Member,
   Guild,
-  TextableChannel,
   InteractionContent,
-  InteractionEditContent,
   Message,
   ComponentInteraction,
-  FileContent,
-} from 'eris';
+  AnyTextChannel,
+  InteractionOptionsWrapper,
+  InteractionResponseTypes,
+} from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
-import { ZeoliteCommandOptions } from './ZeoliteCommandOptions';
 
 type Filter = (interaction: ComponentInteraction) => boolean;
 interface CollectButtonOptions {
@@ -23,14 +22,14 @@ interface CollectButtonOptions {
 
 export class ZeoliteContext {
   private data: Map<string, any> = new Map<string, any>();
-  public options: ZeoliteCommandOptions;
+  public acknowledged: boolean;
 
   public constructor(
     public readonly client: ZeoliteClient,
     public readonly interaction: CommandInteraction,
     public readonly command: ZeoliteCommand,
   ) {
-    this.options = new ZeoliteCommandOptions(client, interaction.data.options, interaction.data.resolved);
+    this.acknowledged = false;
   }
 
   public get user(): User {
@@ -45,7 +44,7 @@ export class ZeoliteContext {
     return this.client.guilds.get(this.interaction.guildID!);
   }
 
-  public get channel(): TextableChannel {
+  public get channel(): AnyTextChannel | undefined {
     return this.interaction.channel;
   }
 
@@ -53,31 +52,44 @@ export class ZeoliteContext {
     return this.interaction.data.name;
   }
 
-  public async reply(options: string | InteractionContent, files?: FileContent | FileContent[]) {
-    return this.interaction.createMessage(options, files);
+  public get options(): InteractionOptionsWrapper {
+    return this.interaction.data.options;
   }
 
-  public async defer(flags?: number) {
-    return this.interaction.defer(flags);
+  public get locale(): string {
+    return this.interaction.locale;
   }
 
-  public async editReply(options: string | InteractionEditContent, files?: FileContent | FileContent[]) {
-    return this.interaction.editOriginalMessage(options, files);
+  public async reply(options: InteractionContent): Promise<void> {
+    await this.client.rest.interactions.createInteractionResponse(this.interaction.id, this.interaction.token, {
+      type: InteractionResponseTypes.CHANNEL_MESSAGE_WITH_SOURCE,
+      data: options,
+    });
+    this.acknowledged = true;
   }
 
-  public async followUp(options: string | InteractionContent): Promise<Message> {
+  public async defer(flags?: number): Promise<void> {
+    await this.interaction.defer(flags);
+    this.acknowledged = true;
+  }
+
+  public async editReply(options: InteractionContent): Promise<Message> {
+    return this.interaction.editOriginal(options);
+  }
+
+  public async followUp(options: InteractionContent): Promise<Message> {
     return this.interaction.createFollowup(options);
   }
 
-  public async deleteReply() {
-    return this.interaction.deleteOriginalMessage();
+  public async deleteReply(): Promise<void> {
+    return this.interaction.deleteOriginal();
   }
 
   public t(str: string, ...args: any[]): string {
-    return this.client.localization.getString(this.member || this.user!, str, ...args);
+    return this.client.localizationManager.getString(this.member || this.user!, str, ...args);
   }
 
-  public set(key: string, data: any) {
+  public set(key: string, data: any): void {
     this.data.set(key, data);
   }
 

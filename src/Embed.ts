@@ -1,3 +1,6 @@
+/**
+ * A simple discord.js-like embed builder.
+ */
 export class Embed {
   public title?: string;
   public description?: string;
@@ -25,8 +28,8 @@ export class Embed {
     return this;
   }
 
-  public setTimestamp(timestamp: string): this {
-    this.timestamp = timestamp;
+  public setTimestamp(timestamp?: string): this {
+    this.timestamp = timestamp || new Date().toISOString();
     return this;
   }
 
@@ -79,7 +82,7 @@ export class Embed {
 
 interface EmbedFooter {
   text: string;
-  icon_url?: string;
+  iconURL?: string;
 }
 
 interface EmbedImage {
@@ -89,7 +92,7 @@ interface EmbedImage {
 interface EmbedAuthor {
   name: string;
   url?: string;
-  icon_url?: string;
+  iconURL?: string;
 }
 
 interface EmbedField {

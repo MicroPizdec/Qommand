@@ -1,10 +1,10 @@
-import { ActionRowComponents } from 'eris';
+import { MessageComponent } from 'oceanic.js';
 
 export class ActionRow {
   public readonly type: 1 = 1;
-  public components: ActionRowComponents[];
+  public components: MessageComponent[];
 
-  public constructor(...buttons: ActionRowComponents[]) {
+  public constructor(...buttons: MessageComponent[]) {
     this.components = buttons;
   }
 }

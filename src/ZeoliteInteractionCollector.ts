@@ -1,6 +1,7 @@
-import { ComponentInteraction, Message } from 'eris';
+import { ComponentInteraction, Message } from 'oceanic.js';
 import EventEmitter from 'events';
 import { ZeoliteClient } from './ZeoliteClient';
+import { off } from 'process';
 
 type Filter = (interaction: ComponentInteraction) => boolean;
 
@@ -12,6 +13,7 @@ export interface ZeoliteInteractionCollectorOptions {
 
 export declare interface ZeoliteInteractionCollector {
   on(event: 'collect', listener: (interaction: ComponentInteraction) => void | Promise<void>): this;
+  off(event: 'collect', listener: (interaction: ComponentInteraction) => void | Promise<void>): this;
   emit(event: 'collect', interaction: ComponentInteraction): boolean;
 }
 
