@@ -30,7 +30,7 @@ export class ZeoliteLocalizationManager {
 
   public getString(user: Member | User, str: string, ...args: any[]): string {
     const lang = this.userLanguages[user.id] || this.defaultLang;
-    const langStrs = this.languageStrings[lang];
+    const langStrs = this.languageStrings[lang] || this.languageStrings[this.defaultLang];
     return langStrs[str] ? util.format(langStrs[str], ...args) : `${str} ${args.join(' ')}`;
   }
 
