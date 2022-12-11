@@ -31,7 +31,7 @@ export class ZeoliteCommandsManager {
     if (!this.commandsDir) {
       throw new Error("Command dir not set.");
     }
-    this.logger.info(`Started loading commands from ${this.commandsDir}...`);
+    this.logger.debug(`Started loading commands from ${this.commandsDir}...`);
     const files = fs.readdirSync(this.commandsDir).filter((f) => !f.endsWith('.js.map'));
     let count = 0;
 
@@ -62,6 +62,7 @@ export class ZeoliteCommandsManager {
       throw new Error(`Command ${cmd.name} is already exist.`);
     }
 
+    cmd.path = path.join(this.commandsDir, name);
     this.commands.set(cmd.name, cmd);
     this.logger.debug(`Loaded command ${cmd.name}.`);
     return cmd;
@@ -73,9 +74,8 @@ export class ZeoliteCommandsManager {
     }
 
     const cmd = this.commands.get(name);
-    const cmdPath = require.resolve(path.join(this.commandsDir, cmd!.name));
 
-    delete require.cache[cmdPath];
+    delete require.cache[cmd!.path];
     this.commands.delete(cmd!.name);
 
     this.logger.debug(`Unloaded command ${name}.`);

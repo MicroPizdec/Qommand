@@ -3,6 +3,7 @@ import { ZeoliteClient } from './ZeoliteClient';
 export class ZeoliteExtension {
   public readonly client: ZeoliteClient;
   public name: string;
+  public path: string;
 
   public constructor(client: ZeoliteClient) {
     this.client = client;

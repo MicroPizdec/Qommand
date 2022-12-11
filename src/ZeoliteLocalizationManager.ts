@@ -29,6 +29,7 @@ export class ZeoliteLocalizationManager {
   }
 
   public getString(user: Member | User, str: string, ...args: any[]): string {
+    // another piece of shitcode, but it works, isn't it?
     const lang = this.userLanguages[user.id] || this.defaultLang;
     const langStrs = this.languageStrings[lang] || this.languageStrings[this.defaultLang];
     return langStrs[str] ? util.format(langStrs[str], ...args) : `${str} ${args.join(' ')}`;

@@ -1,3 +1,4 @@
+import { getLogger, Logger } from '@log4js-node/log4js-api';
 import {
   CreateApplicationCommandOptions,
   ChatInputApplicationCommand,
@@ -10,10 +11,13 @@ import { ZeoliteContext } from './ZeoliteContext';
 export class ZeoliteCommand {
   public data: ZeoliteCommandStructure;
   public readonly client: ZeoliteClient;
+  public path: string;
+  protected logger: Logger;
 
   public constructor(client: ZeoliteClient, data?: ZeoliteCommandStructure) {
     this.client = client;
     this.data = data!;
+    this.logger = getLogger(this.constructor.name);
   }
 
   public get name(): string {

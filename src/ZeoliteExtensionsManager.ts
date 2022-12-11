@@ -25,7 +25,7 @@ export class ZeoliteExtensionsManager {
   }
 
   public loadAllExtensions(): void {
-    this.logger.info(`Started loading extensions from ${this.extensionsDir}...`);
+    this.logger.debug(`Started loading extensions from ${this.extensionsDir}...`);
     const files = fs.readdirSync(this.extensionsDir).filter((f) => !f.endsWith('.js.map'));
     let count = 0;
 
@@ -46,7 +46,7 @@ export class ZeoliteExtensionsManager {
       throw err;
     }
     const ext = new extCls(this.client);
-
+    ext.path = path.join(this.extensionsDir, name);
     this.extensions.set(ext.name, ext);
     ext.onLoad();
 
