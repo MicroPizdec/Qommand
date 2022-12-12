@@ -49,7 +49,7 @@ export class ZeoliteLocalizationManager {
     const langs = Object.keys(this.languageStrings);
 
     for (const lang of langs) {
-      const langPath = require.resolve(path.join(__dirname, '..', 'languages', lang));
+      const langPath = require.resolve(path.join(this.langsDir, lang));
       delete require.cache[langPath];
       delete this.languageStrings[lang];
     }
