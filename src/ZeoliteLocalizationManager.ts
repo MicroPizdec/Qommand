@@ -1,6 +1,6 @@
 import { ZeoliteClient } from './ZeoliteClient';
 import { Member, User } from 'oceanic.js';
-import fs from 'fs';
+import fs from 'fs/promises';
 import path from 'path';
 import util from 'util';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
@@ -45,7 +45,7 @@ export class ZeoliteLocalizationManager {
     return this;
   }
 
-  public reloadLanguages(): void {
+  public async reloadLanguages(): Promise<void> {
     const langs = Object.keys(this.languageStrings);
 
     for (const lang of langs) {
@@ -54,15 +54,16 @@ export class ZeoliteLocalizationManager {
       delete this.languageStrings[lang];
     }
 
-    this.loadLanguages();
+    await this.loadLanguages();
   }
 
-  public loadLanguages(): void {
+  public async loadLanguages(): Promise<void> {
     if (!this.langsDir) {
       throw new Error("Languages dir not set.");
     }
 
-    const langs = fs.readdirSync(this.langsDir).filter(f => !f.endsWith(".js.map")).map((i) => i.split('.')[0]);
+    const langs = await fs.readdir(this.langsDir)
+      .then(list => list.filter(f => !f.endsWith(".js.map")).map((i) => i.split('.')[0]));
 
     for (const lang of langs) {
       const strs = require(path.join(this.langsDir, lang)).default;
@@ -70,6 +71,6 @@ export class ZeoliteLocalizationManager {
       this.logger.debug(`Loaded language ${lang}`);
     }
 
-    this.logger.info('Loaded all language files.');
+    this.logger.info(`Loaded ${langs.length} language files.`);
   }
 }

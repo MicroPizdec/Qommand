@@ -2,7 +2,7 @@ import { getLogger, Logger } from '@log4js-node/log4js-api';
 import { ZeoliteClient } from './ZeoliteClient';
 import { ZeoliteCommand } from './ZeoliteCommand';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
 import { ChatInputApplicationCommand } from 'oceanic.js';
 
 export class ZeoliteCommandsManager {
@@ -27,12 +27,13 @@ export class ZeoliteCommandsManager {
     return this;
   }
 
-  public loadAllCommands(): void {
+  public async loadAllCommands(): Promise<void> {
     if (!this.commandsDir) {
       throw new Error("Command dir not set.");
     }
     this.logger.debug(`Started loading commands from ${this.commandsDir}...`);
-    const files = fs.readdirSync(this.commandsDir).filter((f) => !f.endsWith('.js.map'));
+    const files = await fs.readdir(this.commandsDir)
+      .then(list => list.filter((f) => !f.endsWith('.js.map')));
     let count = 0;
 
     for (const file of files) {

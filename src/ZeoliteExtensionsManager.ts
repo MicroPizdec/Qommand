@@ -1,7 +1,7 @@
 import { getLogger, Logger } from '@log4js-node/log4js-api';
 import { ZeoliteClient } from './ZeoliteClient';
 import path from 'path';
-import fs from 'fs';
+import fs from 'fs/promises';
 import { ZeoliteExtension } from './ZeoliteExtension';
 
 export class ZeoliteExtensionsManager {
@@ -24,9 +24,10 @@ export class ZeoliteExtensionsManager {
     return this;
   }
 
-  public loadAllExtensions(): void {
+  public async loadAllExtensions(): Promise<void> {
     this.logger.debug(`Started loading extensions from ${this.extensionsDir}...`);
-    const files = fs.readdirSync(this.extensionsDir).filter((f) => !f.endsWith('.js.map'));
+    const files = await fs.readdir(this.extensionsDir)
+      .then(list => list.filter(f => !f.endsWith('.js.map')));
     let count = 0;
 
     for (const file of files) {

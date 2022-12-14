@@ -85,11 +85,15 @@ export class ZeoliteClient extends Client {
       `Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id}) in ${interaction.guild ? interaction.guild.name : 'bot DM'}`,
     );
 
-    const cmd: ZeoliteCommand | undefined = this.commandsManager.commands.get(interaction.data.name);
-    if (!cmd) return;
+    const cmd = this.commandsManager.commands.get(interaction.data.name);
+    if (!cmd) {
+      this.logger.trace(`Command ${interaction.data.name} not found`);
+      return;
+    }
+    this.logger.trace(`Found command ${cmd.name}`);
 
     const ctx = new ZeoliteContext(this, interaction, cmd);
-    this.logger.debug(`Created ZeoliteContext for interaction /${cmd.name}`);
+    this.logger.trace(`Created ZeoliteContext for interaction /${cmd.name}`);
 
     await this.handleMiddlewares(cmd, ctx);
   }
@@ -153,8 +157,8 @@ export class ZeoliteClient extends Client {
       this.emit('commandSuccess', ctx);
       if (ctx.command.cooldown) {
         const cmdCooldowns = this.commandsManager.cooldowns.get(ctx.command.name);
-        cmdCooldowns?.set((ctx.member || ctx.user!).id, Date.now());
-        setTimeout(() => cmdCooldowns?.delete((ctx.member || ctx.user!).id), ctx.command.cooldown * 1000);
+        cmdCooldowns?.set(ctx.user.id, Date.now());
+        setTimeout(() => cmdCooldowns?.delete(ctx.user.id), ctx.command.cooldown * 1000);
       }
     } catch (error: any) {
       this.emit('commandError', ctx, error);
