@@ -28,6 +28,10 @@ export class ZeoliteLocalizationManager {
     return 'en';
   }
 
+  public getLanguage(lang: string): Record<string, string> {
+    return this.languageStrings[lang] || this.languageStrings[this.defaultLang];
+  }
+
   public getString(user: Member | User, str: string, ...args: any[]): string {
     // another piece of shitcode, but it works, isn't it?
     const lang = this.userLanguages[user.id] || this.defaultLang;

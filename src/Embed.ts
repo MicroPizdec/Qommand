@@ -80,22 +80,22 @@ export class Embed {
   }
 }
 
-interface EmbedFooter {
+export interface EmbedFooter {
   text: string;
   iconURL?: string;
 }
 
-interface EmbedImage {
+export interface EmbedImage {
   url: string;
 }
 
-interface EmbedAuthor {
+export interface EmbedAuthor {
   name: string;
   url?: string;
   iconURL?: string;
 }
 
-interface EmbedField {
+export interface EmbedField {
   name: string;
   value: string;
   inline?: boolean;

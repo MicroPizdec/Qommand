@@ -5,32 +5,7 @@ import { ZeoliteLocalizationManager } from './ZeoliteLocalizationManager';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
 import { ZeoliteCommandsManager } from './ZeoliteCommandsManager';
 import { ZeoliteExtensionsManager } from './ZeoliteExtensionsManager';
-
-export interface ZeoliteClientOptions extends ClientOptions {
-  owners?: string[];
-}
-
-export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
-
-export interface ZeoliteEvents extends ClientEvents {
-  noPermissions: [ctx: ZeoliteContext, permissions: Constants.PermissionName[]];
-  commandCooldown: [ctx: ZeoliteContext, secondsLeft: number];
-  ownerOnlyCommand: [ctx: ZeoliteContext];
-  guildOnlyCommand: [ctx: ZeoliteContext];
-  commandSuccess: [ctx: ZeoliteContext];
-  commandError: [ctx: ZeoliteContext, error: Error];
-}
-
-export declare interface ZeoliteClient {
-  on<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
-  on(event: string, listener: (...args: any) => void): this;
-  once<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
-  once(event: string, listener: (...args: any) => void): this;
-  off<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
-  off(event: string, listener: (...args: any) => void): this;
-  emit<K extends keyof ZeoliteEvents>(event: K, ...args: ZeoliteEvents[K]): boolean;
-  emit(event: string, ...args: any): boolean;
-}
+import { ZeoliteEvents } from './ZeoliteEvents';
 
 export class ZeoliteClient extends Client {
   public commandsManager: ZeoliteCommandsManager;
@@ -193,4 +168,21 @@ export class ZeoliteClient extends Client {
     if (scopes) link += `&scopes=${scopes.join('%20')}`;
     return link;
   }
+}
+
+export declare interface ZeoliteClient {
+  on<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
+  on(event: string, listener: (...args: any) => void): this;
+  once<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
+  once(event: string, listener: (...args: any) => void): this;
+  off<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
+  off(event: string, listener: (...args: any) => void): this;
+  emit<K extends keyof ZeoliteEvents>(event: K, ...args: ZeoliteEvents[K]): boolean;
+  emit(event: string, ...args: any): boolean;
+}
+
+export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
+
+export interface ZeoliteClientOptions extends ClientOptions {
+  owners?: string[];
 }
