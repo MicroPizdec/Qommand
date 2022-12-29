@@ -4,7 +4,6 @@ export * from './ZeoliteContext';
 export * from './ZeoliteExtension';
 export * from './ZeoliteInteractionCollector';
 export * from './ZeoliteLocalizationManager';
-export * from './ZeoliteLogger';
 export * from './ActionRow';
 export * from './Embed';
 export * from './ZeoliteCommandsManager';

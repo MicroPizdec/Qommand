@@ -1,5 +1,5 @@
 /**
- * A simple discord.js-like embed builder.
+ * A simple discord.js-like embed builder
  */
 export class Embed {
   public title?: string;

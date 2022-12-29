@@ -86,7 +86,7 @@ export class ZeoliteContext {
   }
 
   public t(str: string, ...args: any[]): string {
-    return this.client.localizationManager.getString(this.member || this.user!, str, ...args);
+    return this.client.localizationManager.getString(this.user, str, ...args);
   }
 
   public set(key: string, data: any): void {
@@ -97,11 +97,7 @@ export class ZeoliteContext {
     return this.data.get(key) as T;
   }
 
-  public async collectButton({
-    filter,
-    messageID,
-    timeout,
-  }: CollectButtonOptions): Promise<ComponentInteraction | void> {
+  public async collectButton({ filter, messageID, timeout }: CollectButtonOptions): Promise<ComponentInteraction | void> {
     return new Promise<ComponentInteraction | undefined>((resolve, reject) => {
       const listener = async (interaction: ComponentInteraction) => {
         if (interaction.type != 3 || interaction.message.id != messageID || !filter(interaction)) return;

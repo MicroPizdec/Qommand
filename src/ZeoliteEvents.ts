@@ -1,5 +1,5 @@
-import { ClientEvents, Constants } from "oceanic.js";
-import { ZeoliteContext } from "./ZeoliteContext";
+import { ClientEvents, Constants } from 'oceanic.js';
+import { ZeoliteContext } from './ZeoliteContext';
 
 export interface ZeoliteEvents extends ClientEvents {
   noPermissions: [ctx: ZeoliteContext, permissions: Constants.PermissionName[]];

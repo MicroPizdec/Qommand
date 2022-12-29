@@ -24,16 +24,16 @@ export class ZeoliteCommandsManager {
 
   public setCommandsDir(dir: string): this {
     this.commandsDir = dir;
+    this.logger.trace(`Set commands dir: ${dir}`)
     return this;
   }
 
   public async loadAllCommands(): Promise<void> {
     if (!this.commandsDir) {
-      throw new Error("Command dir not set.");
+      throw new Error('Command dir not set.');
     }
     this.logger.debug(`Started loading commands from ${this.commandsDir}...`);
-    const files = await fs.readdir(this.commandsDir)
-      .then(list => list.filter((f) => !f.endsWith('.js.map')));
+    const files = await fs.readdir(this.commandsDir).then((list) => list.filter((f) => !f.endsWith('.js.map')));
     let count = 0;
 
     for (const file of files) {
@@ -82,14 +82,13 @@ export class ZeoliteCommandsManager {
     this.logger.debug(`Unloaded command ${name}.`);
   }
 
-
   public reloadCommand(name: string): ZeoliteCommand {
     this.unloadCommand(name);
     return this.loadCommand(name);
   }
 
   public async updateCommands(): Promise<void> {
-    const commandList = [...this.commands.values()].map(cmd => cmd.json());
+    const commandList = [...this.commands.values()].map((cmd) => cmd.json());
     try {
       await this.client.application.bulkEditGlobalCommands(commandList);
     } catch (e: any) {
@@ -101,7 +100,7 @@ export class ZeoliteCommandsManager {
 
   public async updateCommand(name: string): Promise<ChatInputApplicationCommand | undefined> {
     if (!this.commands.has(name)) {
-      throw new Error("this command does not exist.");
+      throw new Error('this command does not exist.');
     }
 
     return this.commands.get(name)?.update();

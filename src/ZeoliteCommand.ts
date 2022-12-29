@@ -8,15 +8,29 @@ import {
 import { ZeoliteClient } from './ZeoliteClient';
 import { ZeoliteContext } from './ZeoliteContext';
 
+/**
+ * A class that represents a command. You mustn't instantiate this class directly, extend that class instead.
+ * @example 
+ * ```
+ * export default class TestCommand extends ZeoliteCommand {
+ *   // ...
+ * }
+ * ```
+ */
 export class ZeoliteCommand {
   public data: ZeoliteCommandStructure;
+  /** An instance of client */
   public readonly client: ZeoliteClient;
+  /** Full path to command file */
   public path: string;
   protected logger: Logger;
 
   public constructor(client: ZeoliteClient, data?: ZeoliteCommandStructure) {
+    if (!data) {
+      throw new Error('No data provided.');
+    }
     this.client = client;
-    this.data = data!;
+    this.data = data;
     this.logger = getLogger(this.constructor.name);
   }
 
@@ -68,10 +82,18 @@ export class ZeoliteCommand {
     throw new Error(`${this.constructor.name} does not have the run() method`);
   }
 
+  /**
+   * Updates this command in Discord API.
+   * @returns 
+   */
   public async update(): Promise<ChatInputApplicationCommand | undefined> {
     return this.client.application.createGlobalCommand(this.json());
   }
 
+  /**
+   * 
+   * @returns 
+   */
   public json(): CreateApplicationCommandOptions {
     return {
       type: 1,
@@ -83,6 +105,10 @@ export class ZeoliteCommand {
     };
   }
 
+  /**
+   * Reloads this command.
+   * @returns The instance of reloaded command
+   */
   public reload(): ZeoliteCommand {
     return this.client.commandsManager.reloadCommand(this.name);
   }

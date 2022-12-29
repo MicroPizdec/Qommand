@@ -21,13 +21,13 @@ export class ZeoliteExtensionsManager {
 
   public setExtensionsDir(dir: string): this {
     this.extensionsDir = dir;
+    this.logger.trace(`Set extensions dir: ${dir}`);
     return this;
   }
 
   public async loadAllExtensions(): Promise<void> {
     this.logger.debug(`Started loading extensions from ${this.extensionsDir}...`);
-    const files = await fs.readdir(this.extensionsDir)
-      .then(list => list.filter(f => !f.endsWith('.js.map')));
+    const files = await fs.readdir(this.extensionsDir).then((list) => list.filter((f) => !f.endsWith('.js.map')));
     let count = 0;
 
     for (const file of files) {

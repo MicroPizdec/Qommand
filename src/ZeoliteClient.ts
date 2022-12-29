@@ -1,4 +1,4 @@
-import { Client, ClientEvents, Constants, CommandInteraction, Member, User, InteractionContent, ClientOptions } from 'oceanic.js';
+import { Client, Constants, CommandInteraction, Member, User, ClientOptions } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
 import { ZeoliteContext } from './ZeoliteContext';
 import { ZeoliteLocalizationManager } from './ZeoliteLocalizationManager';
@@ -7,11 +7,16 @@ import { ZeoliteCommandsManager } from './ZeoliteCommandsManager';
 import { ZeoliteExtensionsManager } from './ZeoliteExtensionsManager';
 import { ZeoliteEvents } from './ZeoliteEvents';
 
+/**
+ * Main class of ZeoliteCore
+ */
 export class ZeoliteClient extends Client {
   public commandsManager: ZeoliteCommandsManager;
   public extensionsManager: ZeoliteExtensionsManager;
   public localizationManager: ZeoliteLocalizationManager;
+  /** Array of bot owner IDs */
   public owners: string[] = [];
+  /** Array of middleware functions */
   public middlewares: MiddlewareFunc[] = [];
   public logger: Logger;
 
@@ -22,7 +27,7 @@ export class ZeoliteClient extends Client {
 
     this.logger = getLogger('ZeoliteClient');
     this.oceanicLogger = getLogger('Oceanic');
-    this.logger.debug("Initialized loggers.");
+    this.logger.debug('Initialized loggers.');
 
     this.commandsManager = new ZeoliteCommandsManager(this);
     this.extensionsManager = new ZeoliteExtensionsManager(this);
@@ -56,9 +61,7 @@ export class ZeoliteClient extends Client {
   private async onInteraction(interaction: CommandInteraction): Promise<void> {
     if (interaction.type != 2) return;
 
-    this.logger.debug(
-      `Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id}) in ${interaction.guild ? interaction.guild.name : 'bot DM'}`,
-    );
+    this.logger.debug(`Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id}) in ${interaction.guild ? interaction.guild.name : 'bot DM'}`);
 
     const cmd = this.commandsManager.commands.get(interaction.data.name);
     if (!cmd) {
@@ -70,10 +73,10 @@ export class ZeoliteClient extends Client {
     const ctx = new ZeoliteContext(this, interaction, cmd);
     this.logger.trace(`Created ZeoliteContext for interaction /${cmd.name}`);
 
-    await this.handleMiddlewares(cmd, ctx);
+    await this.handleMiddlewares(ctx);
   }
 
-  private async handleMiddlewares(cmd: ZeoliteCommand, ctx: ZeoliteContext): Promise<void> {
+  private async handleMiddlewares(ctx: ZeoliteContext): Promise<void> {
     let prevIndex = -1;
     let stack = [...this.middlewares, this.runCommand.bind(this)];
 
@@ -114,7 +117,9 @@ export class ZeoliteClient extends Client {
         let expiration = (cmdCooldowns.get((ctx.member || ctx.user!).id) as number) + ctx.command.cooldown * 1000;
         if (now < expiration) {
           let secsLeft = Math.floor((expiration - now) / 1000);
-          this.logger.debug(`Command ${ctx.command.name} didn't run due to being on cooldown. Seconds left: ${secsLeft}`);
+          this.logger.debug(
+            `Command ${ctx.command.name} didn't run due to being on cooldown. Seconds left: ${secsLeft}`,
+          );
           this.emit('commandCooldown', ctx, secsLeft);
           return;
         }
@@ -140,6 +145,12 @@ export class ZeoliteClient extends Client {
     }
   }
 
+  /**
+   * Validates the specified member's permissions.
+   * @param member Member
+   * @param perms Array of permission names
+   * @returns Whether the member has the specified permissions or not
+   */
   public validatePermissions(member: Member, perms: Constants.PermissionName[]): boolean {
     for (const perm of perms) {
       if (!member.permissions.has(perm)) return false;
@@ -148,20 +159,56 @@ export class ZeoliteClient extends Client {
     return true;
   }
 
+  /**
+   * Connect to Discord.
+   */
   public async connect(): Promise<void> {
     this.logger.info('Logging in...');
     await super.connect();
   }
 
+  /**
+   * Checks whether the user is the bot owner or not.
+   * @param user A member or user object
+   * @returns Pretty self-explanatory
+   */
   public isOwner(user: Member | User): boolean {
     return this.owners.includes(user.id);
   }
 
+  /**
+   * Adds the middleware function to client.
+   * @param func Middleware
+   * @example
+   * Middlewares in ZeoliteCore works like their Express counterpart, so they will be executed before the command's run() method.
+   * ```ts
+   * client.addMiddleware(async (ctx, next) => {
+   *   console.log('hello from middleware!');
+   *   await next();
+   * });
+   * ```
+   */
   public addMiddleware(func: MiddlewareFunc): void {
-    if (typeof func != "function") throw new Error("The middleware should be a function.");
+    if (typeof func != 'function') throw new Error('The middleware should be a function.');
     this.middlewares.push(func);
   }
 
+  /**
+   * Removes the middleware from client.
+   * @param func Middleware
+   */
+  public removeMiddleware(func: MiddlewareFunc): void {
+    if (typeof func != 'function') throw new Error('The middleware should be a function.');
+    const index = this.middlewares.indexOf(func);
+    if (index != -1) this.middlewares.splice(index, 1);
+  }
+
+  /**
+   * Generates an invite link for bot.
+   * @param permissions Permissions bitfield
+   * @param scopes Array of scopes
+   * @returns The invite link
+   */
   public generateInvite(permissions?: number, scopes?: string[]): string {
     let link = `https://discord.com/api/oauth2/authorize?client_id=${this.application?.id}`;
     if (permissions) link += `&permissions=${permissions}`;
@@ -184,5 +231,6 @@ export declare interface ZeoliteClient {
 export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
 
 export interface ZeoliteClientOptions extends ClientOptions {
+  /** An array of bot owner IDs */
   owners?: string[];
 }

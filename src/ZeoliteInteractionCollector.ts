@@ -1,7 +1,6 @@
 import { ComponentInteraction, Message } from 'oceanic.js';
 import EventEmitter from 'events';
 import { ZeoliteClient } from './ZeoliteClient';
-import { off } from 'process';
 
 type Filter = (interaction: ComponentInteraction) => boolean;
 
