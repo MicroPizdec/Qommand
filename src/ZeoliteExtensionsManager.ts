@@ -46,7 +46,16 @@ export class ZeoliteExtensionsManager {
       this.logger.error(`Failed to load extension ${name}:\n`, err);
       throw err;
     }
+
     const ext = new extCls(this.client);
+    if (!(ext instanceof ZeoliteExtension)) {
+      throw new Error(`${extCls.name} does not inherit from ZeoliteExtension.`);
+    }
+    if (this.extensions.has(ext.name)) {
+      this.logger.warn(`Attempted to load already existing extension ${ext.name}`);
+      throw new Error(`Extension ${ext.name} is already loaded.`);
+    }
+
     ext.path = path.join(this.extensionsDir, name);
     this.extensions.set(ext.name, ext);
     ext.onLoad();

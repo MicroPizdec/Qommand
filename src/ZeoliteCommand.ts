@@ -34,22 +34,27 @@ export class ZeoliteCommand {
     this.logger = getLogger(this.constructor.name);
   }
 
+  /** Command name */
   public get name(): string {
     return this.data.name;
   }
 
+  /** Command description */
   public get description(): string {
     return this.data.description;
   }
 
+  /** Command group, can be used in help command */
   public get group(): string | undefined {
     return this.data.group;
   }
 
+  /** Command options */
   public get options(): ApplicationCommandOptions[] | undefined {
     return this.data.options;
   }
 
+  /** Whether the command can be executed only by bot owners or not */
   public get ownerOnly(): boolean | undefined {
     return this.data.ownerOnly;
   }

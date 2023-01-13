@@ -8,3 +8,4 @@ export * from './ActionRow';
 export * from './Embed';
 export * from './ZeoliteCommandsManager';
 export * from './ZeoliteExtensionsManager';
+export * from './version';

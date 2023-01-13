@@ -44,6 +44,11 @@ export class ZeoliteCommandsManager {
     this.logger.info(`Loaded ${count} commands.`);
   }
 
+  /**
+   * Loads a command.
+   * @param name Command name
+   * @returns The instance of loaded command
+   */
   public loadCommand(name: string): ZeoliteCommand {
     let cmdCls: typeof ZeoliteCommand;
     try {
@@ -54,6 +59,9 @@ export class ZeoliteCommandsManager {
     }
 
     const cmd = new cmdCls(this.client);
+    if (!(cmd instanceof ZeoliteCommand)) {
+      throw new Error(`${cmdCls.name} does not inherit from ZeoliteCommand.`);
+    }
     if (!cmd.preLoad()) {
       this.logger.warn(`Command ${cmd.name} didn't load due to failed pre-load check.`);
       return cmd;
@@ -69,6 +77,10 @@ export class ZeoliteCommandsManager {
     return cmd;
   }
 
+  /**
+   * Unloads a command
+   * @param name Command name
+   */
   public unloadCommand(name: string): void {
     if (!this.commands.has(name)) {
       throw new Error(`Command ${name} does not exist.`);
@@ -82,11 +94,19 @@ export class ZeoliteCommandsManager {
     this.logger.debug(`Unloaded command ${name}.`);
   }
 
+  /**
+   * Reloads a command
+   * @param name Command name
+   * @returns The instance of reloaded command
+   */
   public reloadCommand(name: string): ZeoliteCommand {
     this.unloadCommand(name);
     return this.loadCommand(name);
   }
 
+  /**
+   * Updates all application commands.
+   */
   public async updateCommands(): Promise<void> {
     const commandList = [...this.commands.values()].map((cmd) => cmd.json());
     try {

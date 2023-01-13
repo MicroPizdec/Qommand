@@ -1,5 +1,4 @@
 import { Client, Constants, CommandInteraction, Member, User, ClientOptions } from 'oceanic.js';
-import { ZeoliteCommand } from './ZeoliteCommand';
 import { ZeoliteContext } from './ZeoliteContext';
 import { ZeoliteLocalizationManager } from './ZeoliteLocalizationManager';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
