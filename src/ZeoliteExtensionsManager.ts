@@ -25,6 +25,11 @@ export class ZeoliteExtensionsManager {
     return this;
   }
 
+  public async loadExtensionsInDir(dir: string) {
+    this.setExtensionsDir(dir);
+    await this.loadAllExtensions();
+  }
+
   public async loadAllExtensions(): Promise<void> {
     this.logger.debug(`Started loading extensions from ${this.extensionsDir}...`);
     const files = await fs.readdir(this.extensionsDir).then((list) => list.filter((f) => !f.endsWith('.js.map')));
@@ -58,7 +63,6 @@ export class ZeoliteExtensionsManager {
 
     ext.path = path.join(this.extensionsDir, name);
     this.extensions.set(ext.name, ext);
-    ext.onLoad();
 
     this.logger.debug(`Loaded extension ${ext.name}`);
 

@@ -34,6 +34,10 @@ export class ZeoliteCommand {
     this.logger = getLogger(this.constructor.name);
   }
 
+  public get type(): Constants.ApplicationCommandTypes {
+    return this.data.type || Constants.ApplicationCommandTypes.CHAT_INPUT;
+  }
+
   /** Command name */
   public get name(): string {
     return this.data.name;
@@ -59,45 +63,57 @@ export class ZeoliteCommand {
     return this.data.ownerOnly;
   }
 
+  /** Whether the command can be executed only in guilds or not */
   public get guildOnly(): boolean | undefined {
     return this.data.guildOnly;
   }
 
+  /** Cooldown value in seconds */
   public get cooldown(): number | undefined {
     return this.data.cooldown;
   }
 
+  /** Required permissions for this command */
   public get requiredPermissions(): Constants.PermissionName[] {
     return this.data.requiredPermissions ? this.data.requiredPermissions : (this.data.requiredPermissions = []);
   }
 
+  /** Name localizations */
   public get nameLocalizations(): Record<string, string> | undefined {
     return this.data.nameLocalizations;
   }
 
+  /** Description localizations */
   public get descriptionLocalizations(): Record<string, string> | undefined {
     return this.data.descriptionLocalizations;
   }
 
+  /**
+   * The pre-load check. You can override this method for some advanced stuff.
+   * @returns Boolean
+   */
   public preLoad(): boolean {
     return true;
   }
 
-  public async run(ctx: ZeoliteContext): Promise<void> {
+  /**
+   * The main method of this class that you should override in your extended class.
+   * @param ctx Command context
+   */
+  public async run(ctx: ZeoliteContext): Promise<unknown> {
     throw new Error(`${this.constructor.name} does not have the run() method`);
   }
 
   /**
    * Updates this command in Discord API.
-   * @returns 
+   * @returns An application command object
    */
   public async update(): Promise<ChatInputApplicationCommand | undefined> {
     return this.client.application.createGlobalCommand(this.json());
   }
 
   /**
-   * 
-   * @returns 
+   * Returns this command as a plain object. Useful for some Discord API-related stuff. 
    */
   public json(): CreateApplicationCommandOptions {
     return {
@@ -120,6 +136,7 @@ export class ZeoliteCommand {
 }
 
 export interface ZeoliteCommandStructure {
+  type?: Constants.ApplicationCommandTypes;
   name: string;
   description: string;
   group?: string;

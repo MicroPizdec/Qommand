@@ -28,6 +28,11 @@ export class ZeoliteCommandsManager {
     return this;
   }
 
+  public async loadCommandsInDir(dir: string) {
+    this.setCommandsDir(dir);
+    await this.loadAllCommands();
+  }
+
   public async loadAllCommands(): Promise<void> {
     if (!this.commandsDir) {
       throw new Error('Command dir not set.');

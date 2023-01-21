@@ -60,6 +60,11 @@ export class ZeoliteLocalizationManager {
     return this;
   }
 
+  public async loadLanguagesInDir(dir: string) {
+    this.setLangsDir(dir);
+    await this.loadLanguages();
+  }
+
   public setDefaultLang(lang: string): this {
     this.defaultLang = lang;
     return this;
