@@ -62,6 +62,7 @@ export class ZeoliteExtensionsManager {
     }
 
     ext.path = path.join(this.extensionsDir, name);
+    ext.onLoad();
     this.extensions.set(ext.name, ext);
 
     this.logger.debug(`Loaded extension ${ext.name}`);
