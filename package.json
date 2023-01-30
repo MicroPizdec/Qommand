@@ -1,6 +1,6 @@
 {
   "name": "zeolitecore",
-  "version": "1.0.1-p1",
+  "version": "1.0.2",
   "description": "Core components of Zeolite",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -10,6 +10,10 @@
     "buildDocs": "typedoc --entryPointStrategy expand src/index.ts",
     "prepare": "npm run build",
     "format": "prettier --write \"src/**/*.ts\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MicroPizdec/ZeoliteCore"
   },
   "author": "MicroPizdec",
   "license": "MIT",
