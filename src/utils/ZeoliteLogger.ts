@@ -41,3 +41,4 @@ export enum LoggerLevel {
   Warn,
   Error,
 }
+// i can reconsider using ZeoliteLogger in future versions

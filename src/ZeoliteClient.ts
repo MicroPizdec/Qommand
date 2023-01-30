@@ -1,10 +1,10 @@
 import { Client, Constants, CommandInteraction, Member, User, ClientOptions, RESTApplication } from 'oceanic.js';
-import { ZeoliteContext } from './ZeoliteContext';
-import { ZeoliteLocalizationManager } from './ZeoliteLocalizationManager';
+import { ZeoliteContext } from './structures/ZeoliteContext';
+import { ZeoliteLocalizationManager } from './managers/ZeoliteLocalizationManager';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
-import { ZeoliteCommandsManager } from './ZeoliteCommandsManager';
-import { ZeoliteExtensionsManager } from './ZeoliteExtensionsManager';
-import { ZeoliteEvents } from './ZeoliteEvents';
+import { ZeoliteCommandsManager } from './managers/ZeoliteCommandsManager';
+import { ZeoliteExtensionsManager } from './managers/ZeoliteExtensionsManager';
+import { ZeoliteEvents } from './structures/ZeoliteEvents';
 
 /**
  * Main class of ZeoliteCore
@@ -37,7 +37,12 @@ export class ZeoliteClient extends Client {
 
     this.once('ready', async () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
-      if (!this.owners.length) this.owners = await this.fetchBotOwners();
+      try {
+        if (!this.owners.length) this.owners = await this.fetchBotOwners();
+      } catch (e: any) {
+        this.logger.error(`Failed to fetch bot owners:`);
+        console.error(e);
+      }
       await this.commandsManager.updateCommands();
     });
 
@@ -145,7 +150,11 @@ export class ZeoliteClient extends Client {
     }
   }
 
-  private async fetchBotOwners(): Promise<string[]> {
+  /**
+   * Fetches the bot owners.
+   * @returns Array of bot owner IDs
+   */
+  public async fetchBotOwners(): Promise<string[]> {
     const app: RESTApplication = await this.rest.request({
       method: 'GET',
       auth: true,

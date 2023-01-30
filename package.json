@@ -7,6 +7,7 @@
   "scripts": {
     "prebuild": "node -p \"`export const VERSION = '${require('./package.json').version}';`\" > src/version.ts",
     "build": "tsc",
+    "buildDocs": "typedoc --entryPointStrategy expand src/index.ts",
     "prepare": "npm run build",
     "format": "prettier --write \"src/**/*.ts\""
   },
@@ -16,6 +17,8 @@
     "@types/node": "^18.0.0",
     "prettier": "^2.7.1",
     "typedoc": "^0.23.23",
+    "typedoc-plugin-extras": "^2.3.2",
+    "typedoc-plugin-rename-defaults": "^0.6.4",
     "typescript": "^4.7.3"
   },
   "dependencies": {

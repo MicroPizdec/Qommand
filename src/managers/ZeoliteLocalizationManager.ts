@@ -1,10 +1,10 @@
-import { ZeoliteClient } from './ZeoliteClient';
+import { ZeoliteClient } from '../ZeoliteClient';
 import { Member, User } from 'oceanic.js';
 import fs from 'fs/promises';
 import path from 'path';
 import util from 'util';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
-import { ZeoliteContext } from './ZeoliteContext';
+import { ZeoliteContext } from '../structures/ZeoliteContext';
 
 /**
  * Localization manager

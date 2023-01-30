@@ -1,4 +1,4 @@
-import { ZeoliteClient } from './ZeoliteClient';
+import { ZeoliteClient } from '../ZeoliteClient';
 
 /**
  * A class that represents an reloadable extension. As with ZeoliteCommand, you shouldn't instantiate this class directly.

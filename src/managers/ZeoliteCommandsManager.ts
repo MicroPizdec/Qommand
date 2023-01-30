@@ -1,6 +1,6 @@
 import { getLogger, Logger } from '@log4js-node/log4js-api';
-import { ZeoliteClient } from './ZeoliteClient';
-import { ZeoliteCommand } from './ZeoliteCommand';
+import { ZeoliteClient } from '../ZeoliteClient';
+import { ZeoliteCommand } from '../structures/ZeoliteCommand';
 import path from 'path';
 import fs from 'fs/promises';
 import { ChatInputApplicationCommand } from 'oceanic.js';
@@ -58,28 +58,28 @@ export class ZeoliteCommandsManager {
     let cmdCls: typeof ZeoliteCommand;
     try {
       cmdCls = require(path.join(this.commandsDir, name)).default;
+
+      const cmd = new cmdCls(this.client);
+      if (!(cmd instanceof ZeoliteCommand)) {
+        throw new Error(`${cmdCls.name} does not inherit from ZeoliteCommand.`);
+      }
+      if (!cmd.preLoad()) {
+        this.logger.warn(`Command ${cmd.name} didn't load due to failed pre-load check.`);
+        return cmd;
+      }
+      if (this.commands.has(cmd.name)) {
+        this.logger.warn(`Attempted to load already existing command ${cmd.name}`);
+        throw new Error(`Command ${cmd.name} is already exist.`);
+      }
+
+      cmd.path = path.join(this.commandsDir, name);
+      this.commands.set(cmd.name, cmd);
+      this.logger.debug(`Loaded command ${cmd.name}.`);
+      return cmd;
     } catch (err: any) {
       this.logger.error(`Failed to load command ${name}:\n`, err);
       throw err;
     }
-
-    const cmd = new cmdCls(this.client);
-    if (!(cmd instanceof ZeoliteCommand)) {
-      throw new Error(`${cmdCls.name} does not inherit from ZeoliteCommand.`);
-    }
-    if (!cmd.preLoad()) {
-      this.logger.warn(`Command ${cmd.name} didn't load due to failed pre-load check.`);
-      return cmd;
-    }
-    if (this.commands.has(cmd.name)) {
-      this.logger.warn(`Attempted to load already existing command ${cmd.name}`);
-      throw new Error(`Command ${cmd.name} is already exist.`);
-    }
-
-    cmd.path = path.join(this.commandsDir, name);
-    this.commands.set(cmd.name, cmd);
-    this.logger.debug(`Loaded command ${cmd.name}.`);
-    return cmd;
   }
 
   /**

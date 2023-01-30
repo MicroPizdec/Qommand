@@ -1,4 +1,4 @@
-import { ZeoliteClient } from './ZeoliteClient';
+import { ZeoliteClient } from '../ZeoliteClient';
 import {
   CommandInteraction,
   User,
