@@ -36,7 +36,7 @@ export class ZeoliteExtensionsManager {
     let count = 0;
 
     for (const file of files) {
-      this.loadExtension(file);
+      await this.loadExtension(file);
       count++;
     }
 
@@ -65,7 +65,7 @@ export class ZeoliteExtensionsManager {
 
       return ext;
     } catch (err: any) {
-      this.logger.error(`Failed to load extension ${name}:\n`, err);
+      this.logger.error(`Failed to load extension ${name}.`);
       throw err;
     }
   }

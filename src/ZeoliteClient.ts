@@ -1,10 +1,9 @@
-import { Client, Constants, CommandInteraction, Member, User, ClientOptions, RESTApplication } from 'oceanic.js';
+import { Client, Constants, CommandInteraction, Member, User, ClientOptions, RESTApplication, AnyInteractionGateway } from 'oceanic.js';
 import { ZeoliteContext } from './structures/ZeoliteContext';
 import { ZeoliteLocalizationManager } from './managers/ZeoliteLocalizationManager';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
 import { ZeoliteCommandsManager } from './managers/ZeoliteCommandsManager';
 import { ZeoliteExtensionsManager } from './managers/ZeoliteExtensionsManager';
-import { ZeoliteEvents } from './structures/ZeoliteEvents';
 
 /**
  * Main class of ZeoliteCore
@@ -40,7 +39,7 @@ export class ZeoliteClient extends Client {
       try {
         if (!this.owners.length) this.owners = await this.fetchBotOwners();
       } catch (e: any) {
-        this.logger.error(`Failed to fetch bot owners:`);
+        this.logger.error(`Failed to fetch bot owners.`);
         console.error(e);
       }
       await this.commandsManager.updateCommands();
@@ -63,7 +62,7 @@ export class ZeoliteClient extends Client {
     this.logger.info('Initialized ZeoliteClient.');
   }
 
-  private async onInteraction(interaction: CommandInteraction): Promise<void> {
+  private async onInteraction(interaction: AnyInteractionGateway): Promise<void> {
     if (interaction.type != 2) return;
 
     this.logger.debug(`Received command interaction /${interaction.data.name} from ${interaction.user.tag} (${interaction.user.id}) in ${interaction.guild ? interaction.guild.name : 'bot DM'}`);
@@ -243,20 +242,12 @@ export class ZeoliteClient extends Client {
   }
 }
 
-export declare interface ZeoliteClient {
-  on<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
-  on(event: string, listener: (...args: any) => void): this;
-  once<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
-  once(event: string, listener: (...args: any) => void): this;
-  off<K extends keyof ZeoliteEvents>(event: K, listener: (...args: ZeoliteEvents[K]) => void): this;
-  off(event: string, listener: (...args: any) => void): this;
-  emit<K extends keyof ZeoliteEvents>(event: K, ...args: ZeoliteEvents[K]): boolean;
-  emit(event: string, ...args: any): boolean;
-}
-
 export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
 
 export interface ZeoliteClientOptions extends ClientOptions {
   /** An array of bot owner IDs */
   owners?: string[];
+  logging?: {
+    level: string;
+  };
 }

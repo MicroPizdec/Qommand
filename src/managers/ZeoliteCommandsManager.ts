@@ -77,7 +77,7 @@ export class ZeoliteCommandsManager {
       this.logger.debug(`Loaded command ${cmd.name}.`);
       return cmd;
     } catch (err: any) {
-      this.logger.error(`Failed to load command ${name}:\n`, err);
+      this.logger.error(`Failed to load command ${name}.`);
       throw err;
     }
   }
@@ -117,7 +117,7 @@ export class ZeoliteCommandsManager {
     try {
       await this.client.application.bulkEditGlobalCommands(commandList);
     } catch (e: any) {
-      this.logger.error('Failed to update application commands:\n', e);
+      this.logger.error('Failed to update application commands.');
       throw e;
     }
     this.logger.info('Updated all application commands.');

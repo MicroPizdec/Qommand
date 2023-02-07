@@ -1,4 +1,4 @@
-import { ComponentInteraction, Message } from 'oceanic.js';
+import { AnyInteractionGateway, ComponentInteraction, Message } from 'oceanic.js';
 import EventEmitter from 'events';
 import { ZeoliteClient } from '../ZeoliteClient';
 
@@ -38,7 +38,7 @@ export class ZeoliteInteractionCollector extends EventEmitter {
     this.timeout = setTimeout(() => this.stop(), this.time);
   }
 
-  private async listener(interaction: ComponentInteraction) {
+  private async listener(interaction: AnyInteractionGateway) {
     if (interaction.type != 3 || interaction.message.id != this.message.id || !this.filter(interaction)) return;
 
     this.emit('collect', interaction);

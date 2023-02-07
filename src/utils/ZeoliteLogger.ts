@@ -35,6 +35,19 @@ export class ZeoliteLogger {
   }
 }
 
+const loggers: Record<string, ZeoliteLogger> = {};
+
+export function getLogger(name: string): ZeoliteLogger {
+  let logger: ZeoliteLogger;
+  if (!loggers[name]) {
+    logger = loggers[name] = new ZeoliteLogger(LoggerLevel.Info, name);
+  } else {
+    logger = loggers[name];
+  }
+
+  return logger;
+}
+
 export enum LoggerLevel {
   Debug,
   Info,
