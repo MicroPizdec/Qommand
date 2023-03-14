@@ -10,6 +10,7 @@ import {
   AnyTextChannel,
   InteractionOptionsWrapper,
   InteractionResponseTypes,
+  AnyInteractionGateway,
 } from 'oceanic.js';
 import { ZeoliteCommand } from './ZeoliteCommand';
 
@@ -140,7 +141,7 @@ export class ZeoliteContext {
 
   public async collectButton({ filter, messageID, timeout }: CollectButtonOptions): Promise<ComponentInteraction | void> {
     return new Promise<ComponentInteraction | undefined>((resolve, reject) => {
-      const listener = async (interaction: ComponentInteraction) => {
+      const listener = async (interaction: AnyInteractionGateway) => {
         if (interaction.type != 3 || interaction.message.id != messageID || !filter(interaction)) return;
 
         const timer = setTimeout(() => {

@@ -32,7 +32,7 @@ export class ZeoliteClient extends Client {
     this.localizationManager = new ZeoliteLocalizationManager(this);
     this.owners = options.owners || [];
 
-    this.on('debug', (msg) => this.oceanicLogger.debug(msg));
+    this.on('debug', (msg) => this.oceanicLogger.trace(msg));
 
     this.once('ready', async () => {
       this.logger.info(`Logged in as ${this.user?.username}.`);
