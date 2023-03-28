@@ -13,6 +13,16 @@ export class Embed {
   public author?: EmbedAuthor;
   public fields?: EmbedField[];
 
+  private colors: Record<string, number> = {
+    red: 0xed4245,
+    green: 0x57f287,
+    yellow: 0xfee75c,
+    blurple: 0x5865f2,
+    black: 0x000000,
+    white: 0xffffff,
+
+  }
+
   public setTitle(title: string): this {
     this.title = title;
     return this;

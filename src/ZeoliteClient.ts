@@ -157,7 +157,7 @@ export class ZeoliteClient extends Client {
     const app: RESTApplication = await this.rest.request({
       method: 'GET',
       auth: true,
-      path: '/oauth2/applications/@me'
+      path: '/oauth2/applications/@me',
     });
 
     let owners: string[];
@@ -237,7 +237,7 @@ export class ZeoliteClient extends Client {
   public generateInvite(permissions?: number, scopes?: string[]): string {
     let link = `https://discord.com/api/oauth2/authorize?client_id=${this.application?.id}`;
     if (permissions) link += `&permissions=${permissions}`;
-    if (scopes) link += `&scopes=${scopes.join('%20')}`;
+    if (scopes) link += `&scope=${scopes.join('%20')}`;
     return link;
   }
 }
