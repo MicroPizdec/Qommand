@@ -1,6 +1,6 @@
 {
   "name": "zeolitecore",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Core components of Zeolite",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -28,6 +28,6 @@
   "dependencies": {
     "@log4js-node/log4js-api": "^1.0.2",
     "emoji-regex": "^10.1.0",
-    "oceanic.js": "^1.1.1"
+    "oceanic.js": "^1.7.1"
   }
 }

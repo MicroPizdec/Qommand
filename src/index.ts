@@ -10,3 +10,4 @@ export * from './managers/ZeoliteCommandsManager';
 export * from './managers/ZeoliteExtensionsManager';
 export * from './version';
 export * from './structures/events';
+export * from './utils/Button';

@@ -1,13 +1,5 @@
 import emojiRegex from 'emoji-regex';
-
-type Style = 'primary' | 'secondary' | 'success' | 'danger' | 'link';
-enum Styles {
-  primary = 1,
-  secondary,
-  success,
-  danger,
-  link,
-}
+import { ButtonStyles } from 'oceanic.js';
 
 interface Emoji {
   id: string | null;
@@ -17,15 +9,15 @@ interface Emoji {
 
 export class Button {
   public readonly type: number = 2;
-  public custom_id?: string;
+  public customID?: string;
   public disabled?: boolean;
-  public style: 1 | 2 | 3 | 4 | 5;
+  public style: ButtonStyles;
   public label?: string;
   public url?: string;
   public emoji?: Emoji;
 
   public setCustomID(id: string): this {
-    this.custom_id = id;
+    this.customID = id;
     return this;
   }
 
@@ -34,8 +26,8 @@ export class Button {
     return this;
   }
 
-  public setStyle(style: Style): this {
-    this.style = Styles[style];
+  public setStyle(style: ButtonStyles): this {
+    this.style = style;
     return this;
   }
 

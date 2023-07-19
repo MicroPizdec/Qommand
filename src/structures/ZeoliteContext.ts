@@ -7,7 +7,7 @@ import {
   InteractionContent,
   Message,
   ComponentInteraction,
-  AnyTextChannel,
+  AnyInteractionChannel,
   InteractionOptionsWrapper,
   InteractionResponseTypes,
   AnyInteractionGateway,
@@ -39,7 +39,7 @@ export class ZeoliteContext {
   }
 
   /** A member who invoked the command */
-  public get member(): Member | undefined {
+  public get member(): Member | null {
     return this.interaction.member;
   }
 
@@ -48,7 +48,7 @@ export class ZeoliteContext {
     return this.client.guilds.get(this.interaction.guildID!);
   }
 
-  public get channel(): AnyTextChannel | undefined {
+  public get channel(): AnyInteractionChannel | undefined {
     return this.interaction.channel;
   }
 
