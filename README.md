@@ -1,2 +1,2 @@
-# ZeoliteCore
-A simple slash commands framework used in Zeolite, and probably can be used in another bots.
+# Qommand (formerly ZeoliteCore)
+A simple slash commands framework for making Discord bots, initially written for Zeolite.
