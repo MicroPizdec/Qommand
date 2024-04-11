@@ -1,7 +1,7 @@
 {
-  "name": "zeolitecore",
+  "name": "qommand",
   "version": "1.1.0",
-  "description": "Core components of Zeolite",
+  "description": "Simple slash commands framework for oceanic.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/MicroPizdec/ZeoliteCore"
+    "url": "https://github.com/MicroPizdec/Qommand"
   },
   "author": "MicroPizdec",
   "license": "MIT",
