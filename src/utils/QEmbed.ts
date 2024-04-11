@@ -1,7 +1,7 @@
 /**
  * A simple discord.js-like embed builder
  */
-export class Embed {
+export class QEmbed {
   public title?: string;
   public description?: string;
   public url?: string;

@@ -1,7 +1,7 @@
-import { ZeoliteClient } from 'zeolitecore';
+import { QClient } from 'zeolitecore';
 import path from 'path';
 
-const client = new ZeoliteClient({
+const client = new QClient({
   auth: 'Bot <insert your bot token here>',
 });
 

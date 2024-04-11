@@ -1,7 +1,7 @@
-import { ZeoliteClient, ZeoliteCommand, ZeoliteContext } from "zeolitecore";
+import { QClient, ZeoliteCommand, ZeoliteContext } from "zeolitecore";
 
 export default class TestCommand extends ZeoliteCommand {
-  constructor(client: ZeoliteClient) {
+  constructor(client: QClient) {
     super(client, {
       name: 'test',
       description: 'testing...',

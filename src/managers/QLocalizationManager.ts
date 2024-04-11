@@ -1,26 +1,26 @@
-import { ZeoliteClient } from '../ZeoliteClient';
+import { QClient } from '../QClient';
 import { Member, User } from 'oceanic.js';
 import fs from 'fs/promises';
 import path from 'path';
 import util from 'util';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
-import { ZeoliteContext } from '../structures/ZeoliteContext';
+import { QContext } from '../structures/QContext';
 
 /**
  * Localization manager
  */
-export class ZeoliteLocalizationManager {
+export class QLocalizationManager {
   public languageStrings: Record<string, Record<string, string>> = {};
   public userLanguages: Record<string, string | undefined> = {};
-  public readonly client: ZeoliteClient;
+  public readonly client: QClient;
   public langsDir?: string;
   public defaultLang: string = 'en-US';
-  public langProvider?: ZeoliteLanguageProvider;
+  public langProvider?: QLanguageProvider;
 
   private boundMiddleware: typeof this.middleware;
   private logger: Logger;
 
-  public constructor(client: ZeoliteClient) {
+  public constructor(client: QClient) {
     this.client = client;
     this.logger = getLogger('ZeoliteLocalizationManager');
     this.boundMiddleware = this.middleware.bind(this);
@@ -28,12 +28,12 @@ export class ZeoliteLocalizationManager {
     this.logger.debug('Initialized localization manager.');
   }
 
-  private async middleware(ctx: ZeoliteContext, next: () => void | Promise<void>) {
+  private async middleware(ctx: QContext, next: () => void | Promise<void>) {
     this.userLanguages[ctx.user.id] = await this.langProvider?.getUserLanguage(ctx);
     await next();
   }
 
-  public setLanguageProvider(provider: ZeoliteLanguageProvider): this {
+  public setLanguageProvider(provider: QLanguageProvider): this {
     this.langProvider = provider;
     if (!this.client.middlewares.includes(this.boundMiddleware)) {
       this.client.addMiddleware(this.boundMiddleware);
@@ -100,8 +100,8 @@ export class ZeoliteLocalizationManager {
   }
 }
 
-export interface ZeoliteLanguageProvider {
-  getUserLanguage(ctx: ZeoliteContext): Promise<string | undefined>;
+export interface QLanguageProvider {
+  getUserLanguage(ctx: QContext): Promise<string | undefined>;
   updateUserLanguage(userID: string, lang: string): Promise<any>;
   deleteUserLanguage(userID: string): Promise<any>;
 }

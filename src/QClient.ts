@@ -1,17 +1,17 @@
 import { Client, Constants, CommandInteraction, Member, User, ClientOptions, RESTApplication, AnyInteractionGateway } from 'oceanic.js';
-import { ZeoliteContext } from './structures/ZeoliteContext';
-import { ZeoliteLocalizationManager } from './managers/ZeoliteLocalizationManager';
+import { QContext } from './structures/QContext';
+import { QLocalizationManager } from './managers/QLocalizationManager';
 import { getLogger, Logger } from '@log4js-node/log4js-api';
-import { ZeoliteCommandsManager } from './managers/ZeoliteCommandsManager';
-import { ZeoliteExtensionsManager } from './managers/ZeoliteExtensionsManager';
+import { ZeoliteCommandsManager } from './managers/QCommandsManager';
+import { ZeoliteExtensionsManager } from './managers/QExtensionsManager';
 
 /**
  * Main class of ZeoliteCore
  */
-export class ZeoliteClient extends Client {
+export class QClient extends Client {
   public commandsManager: ZeoliteCommandsManager;
   public extensionsManager: ZeoliteExtensionsManager;
-  public localizationManager: ZeoliteLocalizationManager;
+  public localizationManager: QLocalizationManager;
   /** Array of bot owner IDs */
   public owners: string[];
   /** Array of middleware functions */
@@ -20,16 +20,16 @@ export class ZeoliteClient extends Client {
 
   private oceanicLogger: Logger;
 
-  public constructor(options: ZeoliteClientOptions = {}) {
+  public constructor(options: QClientOptions = {}) {
     super(options);
 
-    this.logger = getLogger('ZeoliteClient');
+    this.logger = getLogger('QClient');
     this.oceanicLogger = getLogger('Oceanic');
     this.logger.debug('Initialized loggers.');
 
     this.commandsManager = new ZeoliteCommandsManager(this);
     this.extensionsManager = new ZeoliteExtensionsManager(this);
-    this.localizationManager = new ZeoliteLocalizationManager(this);
+    this.localizationManager = new QLocalizationManager(this);
     this.owners = options.owners || [];
 
     this.on('debug', (msg) => this.oceanicLogger.trace(msg));
@@ -59,7 +59,7 @@ export class ZeoliteClient extends Client {
 
     this.on('interactionCreate', this.onInteraction);
 
-    this.logger.info('Initialized ZeoliteClient.');
+    this.logger.info('Initialized QClient.');
   }
 
   private async onInteraction(interaction: AnyInteractionGateway): Promise<void> {
@@ -74,13 +74,13 @@ export class ZeoliteClient extends Client {
     }
     this.logger.trace(`Found command ${cmd.name}`);
 
-    const ctx = new ZeoliteContext(this, interaction, cmd);
+    const ctx = new QContext(this, interaction, cmd);
     this.logger.trace(`Created ZeoliteContext for interaction /${cmd.name}`);
 
     await this.handleMiddlewares(ctx);
   }
 
-  private async handleMiddlewares(ctx: ZeoliteContext): Promise<void> {
+  private async handleMiddlewares(ctx: QContext): Promise<void> {
     let prevIndex = -1;
     let stack = [...this.middlewares, this.runCommand.bind(this)];
 
@@ -97,7 +97,7 @@ export class ZeoliteClient extends Client {
     await runner(0);
   }
 
-  private async runCommand(ctx: ZeoliteContext, next: () => Promise<void> | void): Promise<void> {
+  private async runCommand(ctx: QContext, next: () => Promise<void> | void): Promise<void> {
     if (ctx.command.ownerOnly && !this.isOwner(ctx.member || ctx.user!)) {
       this.logger.debug(`Command ${ctx.command.name} didn't run because ${ctx.user.tag} isn't a bot owner.`);
       this.emit('ownerOnlyCommand', ctx);
@@ -242,9 +242,9 @@ export class ZeoliteClient extends Client {
   }
 }
 
-export type MiddlewareFunc = (ctx: ZeoliteContext, next: () => Promise<void> | void) => Promise<void> | void;
+export type MiddlewareFunc = (ctx: QContext, next: () => Promise<void> | void) => Promise<void> | void;
 
-export interface ZeoliteClientOptions extends ClientOptions {
+export interface QClientOptions extends ClientOptions {
   /** An array of bot owner IDs */
   owners?: string[];
   logging?: {

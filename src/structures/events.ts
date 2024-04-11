@@ -1,13 +1,13 @@
 import { Constants } from 'oceanic.js';
-import { ZeoliteContext } from './ZeoliteContext';
+import { QContext } from './QContext';
 
 declare module 'oceanic.js' {
   interface ClientEvents {
-    noPermissions: [ctx: ZeoliteContext, permissions: Constants.PermissionName[]];
-    commandCooldown: [ctx: ZeoliteContext, secondsLeft: number];
-    ownerOnlyCommand: [ctx: ZeoliteContext];
-    guildOnlyCommand: [ctx: ZeoliteContext];
-    commandSuccess: [ctx: ZeoliteContext];
-    commandError: [ctx: ZeoliteContext, error: Error];
+    noPermissions: [ctx: QContext, permissions: Constants.PermissionName[]];
+    commandCooldown: [ctx: QContext, secondsLeft: number];
+    ownerOnlyCommand: [ctx: QContext];
+    guildOnlyCommand: [ctx: QContext];
+    commandSuccess: [ctx: QContext];
+    commandError: [ctx: QContext, error: Error];
   }
 }

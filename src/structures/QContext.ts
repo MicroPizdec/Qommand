@@ -1,4 +1,4 @@
-import { ZeoliteClient } from '../ZeoliteClient';
+import { QClient } from '../QClient';
 import {
   CommandInteraction,
   User,
@@ -12,7 +12,8 @@ import {
   InteractionResponseTypes,
   AnyInteractionGateway,
 } from 'oceanic.js';
-import { ZeoliteCommand } from './ZeoliteCommand';
+import { QCommand } from './QCommand';
+import { FollowupMessageInteractionResponse } from 'oceanic.js/dist/lib/util/interactions/MessageInteractionResponse';
 
 type Filter = (interaction: ComponentInteraction) => boolean;
 interface CollectButtonOptions {
@@ -21,14 +22,14 @@ interface CollectButtonOptions {
   timeout?: number;
 }
 
-export class ZeoliteContext {
+export class QContext {
   private data: Map<string, any> = new Map<string, any>();
   public acknowledged: boolean;
 
   public constructor(
-    public readonly client: ZeoliteClient,
+    public readonly client: QClient,
     public readonly interaction: CommandInteraction,
-    public readonly command: ZeoliteCommand,
+    public readonly command: QCommand,
   ) {
     this.acknowledged = false;
   }
@@ -100,7 +101,7 @@ export class ZeoliteContext {
    * @param options Message content
    * @returns A followup message object
    */
-  public async followUp(options: InteractionContent): Promise<Message> {
+  public async followUp(options: InteractionContent): Promise<FollowupMessageInteractionResponse<CommandInteraction>> {
     return this.interaction.createFollowup(options);
   }
 

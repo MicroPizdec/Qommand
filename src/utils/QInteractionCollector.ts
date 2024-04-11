@@ -1,6 +1,6 @@
 import { AnyInteractionGateway, ComponentInteraction, Message } from 'oceanic.js';
 import EventEmitter from 'events';
-import { ZeoliteClient } from '../ZeoliteClient';
+import { QClient } from '../QClient';
 
 type Filter = (interaction: ComponentInteraction) => boolean;
 
@@ -17,7 +17,7 @@ export declare interface ZeoliteInteractionCollector {
 }
 
 export class ZeoliteInteractionCollector extends EventEmitter {
-  public readonly client: ZeoliteClient;
+  public readonly client: QClient;
   public filter: Filter;
   public message: Message;
   public time: number;
@@ -25,7 +25,7 @@ export class ZeoliteInteractionCollector extends EventEmitter {
   private timeout: NodeJS.Timeout;
   private boundListener: typeof this.listener;
 
-  public constructor(client: ZeoliteClient, options: ZeoliteInteractionCollectorOptions) {
+  public constructor(client: QClient, options: ZeoliteInteractionCollectorOptions) {
     super();
 
     this.client = client;

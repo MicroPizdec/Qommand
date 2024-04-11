@@ -1,19 +1,19 @@
 import { getLogger, Logger } from '@log4js-node/log4js-api';
-import { ZeoliteClient } from '../ZeoliteClient';
-import { ZeoliteCommand } from '../structures/ZeoliteCommand';
+import { QClient } from '../QClient';
+import { QCommand } from '../structures/QCommand';
 import path from 'path';
 import fs from 'fs/promises';
 import { ChatInputApplicationCommand } from 'oceanic.js';
 
 export class ZeoliteCommandsManager {
-  public commands: Map<string, ZeoliteCommand>;
-  public readonly client: ZeoliteClient;
+  public commands: Map<string, QCommand>;
+  public readonly client: QClient;
   public commandsDir: string;
   public cooldowns: Map<string, Map<string, number>>;
 
   private logger: Logger;
 
-  public constructor(client: ZeoliteClient) {
+  public constructor(client: QClient) {
     this.client = client;
     this.commands = new Map();
     this.logger = getLogger('ZeoliteCommandsManager');
@@ -54,13 +54,13 @@ export class ZeoliteCommandsManager {
    * @param name Command name
    * @returns The instance of loaded command
    */
-  public loadCommand(name: string): ZeoliteCommand {
-    let cmdCls: typeof ZeoliteCommand;
+  public loadCommand(name: string): QCommand {
+    let cmdCls: typeof QCommand;
     try {
       cmdCls = require(path.join(this.commandsDir, name)).default;
 
       const cmd = new cmdCls(this.client);
-      if (!(cmd instanceof ZeoliteCommand)) {
+      if (!(cmd instanceof QCommand)) {
         throw new Error(`${cmdCls.name} does not inherit from ZeoliteCommand.`);
       }
       if (!cmd.preLoad()) {
@@ -104,7 +104,7 @@ export class ZeoliteCommandsManager {
    * @param name Command name
    * @returns The instance of reloaded command
    */
-  public reloadCommand(name: string): ZeoliteCommand {
+  public reloadCommand(name: string): QCommand {
     this.unloadCommand(name);
     return this.loadCommand(name);
   }

@@ -5,27 +5,27 @@ import {
   ApplicationCommandOptions,
   Constants,
 } from 'oceanic.js';
-import { ZeoliteClient } from '../ZeoliteClient';
-import { ZeoliteContext } from './ZeoliteContext';
+import { QClient } from '../QClient';
+import { QContext } from './QContext';
 
 /**
  * A class that represents a command. You mustn't instantiate this class directly, extend that class instead.
  * @example 
  * ```
- * export default class TestCommand extends ZeoliteCommand {
+ * export default class SampleCommand extends QCommand {
  *   // ...
  * }
  * ```
  */
-export class ZeoliteCommand {
-  public data: ZeoliteCommandStructure;
+export class QCommand {
+  public data: QCommandData;
   /** An instance of client */
-  public readonly client: ZeoliteClient;
+  public readonly client: QClient;
   /** Full path to command file */
   public path: string;
   protected logger: Logger;
 
-  public constructor(client: ZeoliteClient, data?: ZeoliteCommandStructure) {
+  public constructor(client: QClient, data?: QCommandData) {
     if (!data) {
       throw new Error('No data provided.');
     }
@@ -100,7 +100,7 @@ export class ZeoliteCommand {
    * The main method of this class that you should override in your extended class.
    * @param ctx Command context
    */
-  public async run(ctx: ZeoliteContext): Promise<unknown> {
+  public async run(ctx: QContext): Promise<unknown> {
     throw new Error(`${this.constructor.name} does not have the run() method`);
   }
 
@@ -130,12 +130,12 @@ export class ZeoliteCommand {
    * Reloads this command.
    * @returns The instance of reloaded command
    */
-  public reload(): ZeoliteCommand {
+  public reload(): QCommand {
     return this.client.commandsManager.reloadCommand(this.name);
   }
 }
 
-export interface ZeoliteCommandStructure {
+export interface QCommandData {
   type?: Constants.ApplicationCommandTypes;
   name: string;
   description: string;

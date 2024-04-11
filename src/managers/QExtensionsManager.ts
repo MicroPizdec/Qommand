@@ -1,22 +1,30 @@
 import { getLogger, Logger } from '@log4js-node/log4js-api';
-import { ZeoliteClient } from '../ZeoliteClient';
+import { QClient } from '../QClient';
 import path from 'path';
 import fs from 'fs/promises';
-import { ZeoliteExtension } from '../structures/ZeoliteExtension';
+import { QExtension } from '../structures/QExtension';
 
 export class ZeoliteExtensionsManager {
-  public extensions: Map<string, ZeoliteExtension>;
-  public readonly client: ZeoliteClient;
+  public extensions: Map<string, QExtension>;
+  public readonly client: QClient;
   public extensionsDir: string;
 
   private logger: Logger;
 
-  public constructor(client: ZeoliteClient) {
+  public constructor(client: QClient) {
     this.client = client;
     this.extensions = new Map();
     this.logger = getLogger('ZeoliteExtensionsManager');
 
     this.logger.debug('Initialized extensions manager.');
+
+    process.on('exit', async (code) => {
+      this.logger.info('Calling all onExit() methods of extensions...');
+      for (const ext of this.extensions.values()) {
+        this.logger.debug(`Called ${ext.constructor.name}.onExit()`);
+        await ext.onExit();
+      }
+    });
   }
 
   public setExtensionsDir(dir: string): this {
@@ -43,14 +51,14 @@ export class ZeoliteExtensionsManager {
     this.logger.info(`Loaded ${count} extensions.`);
   }
 
-  public async loadExtension(name: string): Promise<ZeoliteExtension> {
-    let extCls: typeof ZeoliteExtension;
+  public async loadExtension(name: string): Promise<QExtension> {
+    let extCls: typeof QExtension;
     try {
       extCls = require(path.join(this.extensionsDir, name)).default;
 
       const ext = new extCls(this.client);
-      if (!(ext instanceof ZeoliteExtension)) {
-        throw new Error(`${extCls.name} does not inherit from ZeoliteExtension.`);
+      if (!(ext instanceof QExtension)) {
+        throw new Error(`${extCls.name} does not inherit from QExtension.`);
       }
       if (this.extensions.has(ext.name)) {
         this.logger.warn(`Attempted to load already existing extension ${ext.name}`);
@@ -85,7 +93,7 @@ export class ZeoliteExtensionsManager {
     this.logger.debug(`Unloaded extension ${ext!.name}.`);
   }
 
-  public async reloadExtension(name: string): Promise<ZeoliteExtension> {
+  public async reloadExtension(name: string): Promise<QExtension> {
     this.unloadExtension(name);
     return this.loadExtension(name);
   }
